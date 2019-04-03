@@ -1,4 +1,4 @@
-//执行操作过程中的错误信息的收集以及操作
+*****************执行操作过程中的错误信息的收集以及操作******************************************
 
 // Create a list of contacts
 List<Contact> conList = new List<Contact> {
@@ -24,3 +24,9 @@ for (Database.SaveResult sr : srList) {
 	 }
     }
 }
+
+
+
+*****************************父对象中选择子对象*****************************************************************
+
+SELECT Id,name,(select Phone from contacts) FROM Account WHERE Name='Test Trigger2'
