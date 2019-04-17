@@ -1,0 +1,66 @@
+/*
+    @Author: Nic HE
+    @Date: 2019.01.22
+    @Function:销售订单产品中，点击更新产品价格按钮，更新此订单下的所有产品的三级价格。
+ */
+
+global class RefreshOrderProductsPrice {
+    webService static String execute(String ids){
+    	Boolean flag1=false;
+    	Boolean flag2=false;
+        //根据按钮传过来的销售订单ID，查询此销售订单下的订单产品。
+        List<BGOrderProduct__c> bgopList = [
+        									Select id,
+        										BGProductRaisecom_Name__c,   // 瑞斯康达产品
+        										DirectorPrice__c,			 //总监价
+        										ProductRaiseGuidePrice__c,	//主任价格  
+        										AuthorizedDealerOrice__c,	//销售指导价
+        										BGOrder__c		            //订单
+        									from  BGOrderProduct__c
+        									where BGOrder__c =:ids
+        										];
+	    if(bgopList.size()<=0){
+	    	return 'noSource';
+	    }else{
+	    	Set<ID> idSet = new Set<ID>(); 
+	    	for(BGOrderProduct__c bgp : bgopList){
+	    		idSet.add(bgp.BGProductRaisecom_Name__c);
+	    	}
+	    	//根据产品ID查找产品
+	    	List<ProductRaisecom__c> proList = [
+	    							Select id,
+		    							AuthorizedDealerOrice__c,		//销售指导价格（BG）
+		    							BGProductRaiseGuidePrice__c,	//授权经销商价格
+		    							BGAuthorizedDealerOrice__c 		//总监指导价（BG）
+	    							from ProductRaisecom__c
+	    							where id in:idSet
+	    							 ];
+		    //将更新的瑞斯康达产品价格重新赋值给相对应的报价产品						 
+		    for(BGOrderProduct__c bgp : bgopList){
+		    	for(ProductRaisecom__c pro : proList){
+		    		if(bgp.BGProductRaisecom_Name__c==pro.Id){
+		    			if(bgp.ProductRaiseGuidePrice__c!=pro.BGProductRaiseGuidePrice__c 
+		    				|| bgp.DirectorPrice__c!=pro.BGAuthorizedDealerOrice__c 
+		    				|| bgp.AuthorizedDealerOrice__c!=pro.AuthorizedDealerOrice__c){
+		    				bgp.ProductRaiseGuidePrice__c = pro.BGProductRaiseGuidePrice__c;
+			    			bgp.DirectorPrice__c = pro.BGAuthorizedDealerOrice__c;
+			    			bgp.AuthorizedDealerOrice__c = pro.AuthorizedDealerOrice__c;
+			    			flag1 = true;    //更新了报价产品的价格--alert“更新成功”
+		    			}else{
+		    				flag2=true;      //未更新报价产品额价格--alert“已是最新价格，无需更新”
+		    			}
+		    		}
+		    	}
+		    }
+		    if(flag1==true){
+		    	update bgopList;
+		    	return 'success';
+		    	
+		    }
+		    if(flag2==true){
+		    	return 'noupdate';
+		    }
+	    }
+	    return null;
+    }
+}
