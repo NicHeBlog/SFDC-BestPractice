@@ -1,0 +1,76 @@
+<!-- 
+@Author: NIC HE
+@Date:2019.04.09
+@Function:批量订单下的产品到备案产品库
+-->
+<apex:page tabStyle="BGQuote__c" controller="AppendToFilingProductsCtrl" showHeader="true"  id="thePage">
+<c:StatusSpinne />
+    <apex:form id="theForm">
+        
+    <!--<apex:actionFunction name="getBatch" id="getBatch" action="{!getBatch}" reRender="rtlist" status="LoadingStatusSpinner"/>
+    <apex:actionFunction name="getSelectProductByName" id="getSelectProductByName" action="{!getSelectProductByName}" reRender="qptlist" />-->
+        
+    <apex:sectionHeader title="批量添加产品至备案库"/>
+    <apex:pageMessages id="message" />
+        <apex:pageBlock id="block1">
+            
+            <apex:pageBlockButtons >
+                <span style="margin-left: 17%;" >
+                    <apex:commandButton value="一键备案" action="{!getSelectProductByName}" style="margin-left: 20px;" status="LoadingStatusSpinner"/>
+                    <apex:commandButton value="返回" immediate="true" action="{!ReturnButton}" style="margin-left: 20px;"/>
+                </span>
+            </apex:pageBlockButtons>
+ 
+            <apex:pageBlockSection title="产品" columns="1" id="selectProduct">
+                 <apex:pageBlockTable value="{!oiList}" var="oi" id="qptlist">
+                     <apex:column headerValue="五级备案" width="2%">
+                        <apex:inputCheckbox value="{!oi.ifFiveCheck}" label="五级备案"/>
+                    </apex:column>
+                     <apex:column headerValue="四级备案" width="2%">
+                        <apex:inputCheckbox value="{!oi.ifFourCheck}" label="四级备案"/>
+                    </apex:column>
+                    <apex:column headerValue="瑞斯康达产品名称" width="10%" >
+                        <apex:outputField id="name3" value="{!oi.qp.BGProductRaisecom_Name__r.Name}" label="瑞斯康达产品名称"/>
+                    </apex:column>
+                    <apex:column headerValue="客户订单型号" width="10%">
+                        <apex:outputField id="Product_Remark" value="{!oi.qp.Product_Remark__c}"  label="客户订单型号"/>
+                    </apex:column>
+                    <apex:column headerValue="新备案价" width="6%">
+                        <apex:outputField id="Price" value="{!oi.qp.Price__c}"  label="新备案价"/>    <!--销价单价即为备案价格-->
+                    </apex:column>
+                    <apex:column headerValue="主任价" width="6%">
+                        <apex:outputField id="subDirector" value="{!oi.qp.ProductRaiseGuidePrice__c}"  label="主任价"/>
+                    </apex:column>
+                    <apex:column headerValue="总监价" width="6%">
+                        <apex:outputField id="Director" value="{!oi.qp.DirectorPrice__c}"  label="总监价"/>
+                    </apex:column>
+                    <apex:column headerValue="备案客户" width="15%">
+                        <apex:outputField id="customer" value="{!oi.qte.AccountName__r.Name}"  label="备案客户"/>
+                    </apex:column>
+                    <apex:column headerValue="备案客户行业" width="10%">
+                        <apex:outputField id="industry" value="{!oi.qte.Industry__c}"  label="备案客户行业"/>
+                    </apex:column>
+                   <!-- <apex:column headerValue="备案客户省份" width="10%">
+                        <apex:outputField id="province" value="{!oi.qte.citys__c}"  label="备案客户省份"/>
+                    </apex:column>-->
+                      <apex:column headerValue="备案开始日期" width="5%">
+                        <apex:outputField id="StartDate" value="{!oi.qte.Start__c}"  label="备案开始日期"/>
+                    </apex:column>
+                    <apex:column headerValue="备案结束日期" width="5%">
+                        <apex:outputField id="EndDate" value="{!oi.qte.End__c}"  label="备案结束日期"/>
+                    </apex:column>
+                     <apex:column headerValue="历史备案价" width="8%">
+                        <apex:outputField id="OldBackupPrice" value="{!oi.qp.Backup_price__c}"  label="历史备案价"/>
+                    </apex:column>
+                    <apex:column headerValue="销售策略" width="3%">
+                        <apex:inputField style="width: 100%;" id="CollectMining" value="{!oi.qp.CollectMining__c}" label="销售策略"/>
+                    </apex:column>
+                    
+                    
+                    
+                </apex:pageBlockTable>    
+            </apex:pageBlockSection>
+            
+        </apex:pageBlock>
+    </apex:form>    
+</apex:page>
