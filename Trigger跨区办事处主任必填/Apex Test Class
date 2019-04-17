@@ -1,0 +1,34 @@
+@isTest
+private class CloneOppHandler_Test {
+    static testMethod void testMethod1() {
+        Account a =new Account();
+        a.Name='测试客户';
+        a.Province__c='北京';
+        insert a;
+        
+        string province2;
+        province2=a.Province__c;
+        
+        Opportunity opp = new Opportunity();
+        opp.Account=a;
+        opp.Name='1';
+        opp.StageName= '初期沟通';
+        opp.CloseDate=date.today();
+        opp.Project_Province__c='北京';
+        try {
+            opp.peopol__c=null;
+            insert opp;
+        } catch(Exception error) {
+            System.assert(error.getMessage().contains('项目所在地和客户省份不一致，跨区办事处主任必填'));
+            System.assert(error.getMessage().contains('FIELD_CUSTOM_VALIDATION_EXCEPTION'));      
+        }
+        
+    }
+}
+
+
+/* reference: https://developer.salesforce.com/forums/?id=906F00000008xGuIAI
+              a. Write code in the test class that will cause the trigger to 'addError()'.
+              b. Surround the above test class code with try - catch.
+              c. Assert that an exception is thrown and that the exception message is the same one you created with 'addError()'.
+*/
