@@ -1,0 +1,10 @@
+{!REQUIRESCRIPT("/soap/ajax/35.0/connection.js")}
+{!REQUIRESCRIPT("/soap/ajax/35.0/apex.js")}
+location.reload();
+if ("{!BGQuote__c.Audit_state__c}"=='草稿'||"{!BGQuote__c.Audit_state__c}"=='审批中'){
+alert("订单尚未审批通过");
+}
+else {
+window.open('/apex/AppendToFilingProducts?quoteId={! BGQuote__c.Id}');
+}
+
