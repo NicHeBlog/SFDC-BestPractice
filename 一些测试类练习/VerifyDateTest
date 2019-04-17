@@ -1,0 +1,24 @@
+@isTest
+Private class VerifyDateTest {
+    @isTest static void Date2BeforeDate1(){
+        Date Date1=Date.newInstance(2019, 1, 11);
+        Date Date2=Date.newInstance(2019, 1, 10);
+        Date result=VerifyDate.CheckDates(Date1,Date2);
+        System.assertEquals(Date.newInstance(2019, 1, 31), result);
+    }
+     
+    @isTest static void Date2AfterDate1(){
+        Date Date1=Date.newInstance(2019, 1, 11);
+        Date Date2=Date.newInstance(2019, 1, 15);
+        Date result=VerifyDate.CheckDates(Date1,Date2);
+        System.assertEquals(Date.newInstance(2019, 1, 15), result);
+    }
+    
+    @isTest static void Date2After30DaysDate1(){
+        Date Date1=Date.newInstance(2019, 1, 11);
+        Date Date2=Date.newInstance(2019, 2, 15);
+        Date result=VerifyDate.CheckDates(Date1,Date2);
+        System.assertEquals(Date.newInstance(2019, 1, 31), result);
+    }
+    
+}
