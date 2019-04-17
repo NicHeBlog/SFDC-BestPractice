@@ -1,0 +1,194 @@
+/*
+    @Author: NIC HE
+    @Date: 2019.04.10
+    @Function:带出报价产品，获取报价以及产品信息并保存到备案产品库
+ */
+public class AppendToFilingProductsCtrl {
+    
+    public List<BGQuoteProduct__c> oproductList{get;set;}
+    public List<BGQuoteItem> oiList {get;set;} 
+    public List<FilingProducts__c> fpList {get;set;} 
+    public List<FilingProducts__c> oldfpList {get;set;} 
+
+    public BGQuote__c quote{get;set;}                    //报价
+    public Id quoteid{get;set;}                         //报价id
+    public String quoteName {get;set;}                  //报价名称
+    public String accountName  {get;set;}               //报价的最终客户名称
+    public ID accountId  {get;set;}                     //报价的最终客户id
+    public List<FilingProducts__c> Fp_duplicatedCheck {get;set;} 
+
+    public Set<String> checkSet{get;set;}   //用来检查  备案客户id+瑞斯产品id+产品备案价格  是否唯一
+    public Map<String,FilingProducts__c> checkMap {get;set;}  //<备案客户id+瑞斯产品id,备案产品>
+
+    //在页面初始化的时候就将这次报价的所有报价产品传递给页面
+    public AppendToFilingProductsCtrl(){
+
+        this.quoteid =ApexPages.currentPage().getParameters().get('quoteId');
+        this.oproductList= new list<BGQuoteProduct__c>();    //报价下的产品
+        this.oiList = new List<BGQuoteItem>();
+        this.fpList = new List<FilingProducts__c>();
+        this.oldfpList = new List<FilingProducts__c>();
+        this.checkSet=new Set<String>();
+        this.checkMap=new Map<String,FilingProducts__c>();
+       //system.debug('20190417quoteid:'+quoteid);
+        this.quote=[Select Id,Name,AccountName__c,bb.AccountName__r.Name,Industry__c,bb.Start__c,bb.End__c,bb.RecordType.DeveloperName From BGQuote__c bb Where bb.Id =: quoteid];
+       
+        this.quoteName=quote.Name;       //获取报价的名称
+        this.accountName=quote.AccountName__r.Name;  //获取报价关联的客户的名称
+        this.accountId=quote.AccountName__c;         //获取报价关联的客户id
+        //拉出该客户下的所有备案的并且启用状态的产品
+        this.Fp_duplicatedCheck=[select BGAccount__c,Price__c,ProductName__c,number__c,AgreementProductActive__c from FilingProducts__c where AgreementProductActive__c=true and BGAccount__c = : accountId];
+        
+        for (FilingProducts__c fp : Fp_duplicatedCheck){
+            checkSet.add(String.valueOf(fp.BGAccount__c)+String.valueOf(fp.ProductName__c)+String.valueOf(fp.Price__c)); //<客户id+瑞斯产品id+备案价格>
+            checkMap.put(String.valueOf(fp.BGAccount__c)+String.valueOf(fp.ProductName__c),fp);     //<备案客户id+瑞斯产品id,备案产品>
+        }
+        
+       // system.debug('--->>>CheckMap:'+checkMap);
+        
+       
+        //向数据库查询已有的报价产品信息
+        this.oproductList=[
+            Select
+            BGProductRaisecom_Name__c,  //瑞斯康达产品的id
+            BGProductRaisecom_Name__r.Name,  //瑞斯康达产品名称
+            BGProductRaisecom_Name__r.Material_Code__c,  //物料长代码
+            BGProductRaisecom_Name__r.MaterialCode4__c,  //四级物料代码
+            Price__c,        //销价单价
+            //AuthorizedDealerOrice__c,  //销售指导价
+            DirectorPrice__c,//总监价
+            Backup_price__c,  //备案价格
+            ProductRaiseGuidePrice__c,//主任价//授权经销商价
+            Product_Remark__c,  //客户订单型号
+            CollectMining__c  //销售策略
+            From  BGQuoteProduct__c q  where q.BGQuoteProjectName__c = :quoteid];
+
+        //将qproductList中的产品ID放入map中,并封装类oiList
+        for (BGQuoteProduct__c op : oproductList) {
+            //checkMap.put(op.BGProductRaisecom_Name__c, op.Id);   //<瑞斯康达产品id，报价产品id>
+            oiList.add(new BGQuoteItem(false,false,op,quote));        //封装oiList 方便VF page调用
+        }
+     
+    }
+
+    public PageReference getSelectProductByName(){
+        System.debug('oiList.size：'+oiList.size());
+        if(oiList.size()>0){ 
+                  
+                    for (BGQuoteItem oi : oiList) {
+                            if (oi.ifFiveCheck){
+                                
+                                ///***********  Start  五级物料代码的备案********************************************************************
+                                if (checkSet.contains(String.valueOf(oi.qte.AccountName__c)+String.valueOf(oi.qp.BGProductRaisecom_Name__c)+String.valueOf(oi.qp.Price__c))) {
+                                        String msg='客户 <'+ oi.qte.AccountName__r.Name+ '> 已经存在 *相同价格* 的备案产品 <'+oi.qp.BGProductRaisecom_Name__r.Name +'>';
+                                        ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,msg));
+                                        return null;
+                                }else {  
+                                    //如果客户存在相同的产品但是价格不一样，备案新产品的同时，把旧的备案价格变为不启用
+                                    if (checkMap.containsKey(String.valueOf(oi.qte.AccountName__c)+String.valueOf(oi.qp.BGProductRaisecom_Name__c))){  
+                                        FilingProducts__c oldfp = new FilingProducts__c();
+                                        oldfp=checkMap.get(String.valueOf(oi.qte.AccountName__c)+String.valueOf(oi.qp.BGProductRaisecom_Name__c));
+                                        oldfp.AgreementProductActive__c=false;
+                                        oldfpList.add(oldfp);
+                                    }
+                                    
+
+                                        FilingProducts__c fp =new FilingProducts__c();
+                                        fp.ProductName__c=oi.qp.BGProductRaisecom_Name__c;     //瑞斯康达产品id------报价产品的瑞斯康达产品id
+                                        fp.Price__c=oi.qp.Price__c;                            //备案价格------报价产品的销价单价
+                                            if(oi.qp.CollectMining__c==null){          //如果没有填写销售策略，则默认的销售策略赋值为蓝色
+                                                fp.CollectMining__c='系统蓝';
+                                            } else {
+                                                fp.CollectMining__c=oi.qp.CollectMining__c;             //销售策略------销售策略
+                                            }
+                                        
+                                     	//fp.MaterialCode4__c=oi.qp.BGProductRaisecom_Name__r.MaterialCode4__c;  //4级物料代码------瑞斯康达产品的4级物料代码
+                                    	fp.BGAccount__c=oi.qte.AccountName__c; //客户------最终客户id
+                                    	fp.Industry__c=oi.qte.Industry__c;    //行业------最终客户行业
+                                     	// fp.Province__c=oi.qte.citys__c;       //省份------最终客户省份
+                                    	fp.BGQuote__c=oi.qte.id;                  //关联备案报价单------报价id
+                                    	fp.Start_date__c=oi.qte.Start__c;         //开始日期------开始日期
+                                    	fp.End_date__c=oi.qte.End__c;             //结束日期------结束日期
+                                    	fp.AgreementProductActive__c=true;    //是否启用------true
+                                    
+                                    	fpList.add(fp);
+                                }
+                                                    
+                            }
+                        
+                        ///***********  End  五级物料代码的备案********************************************************************
+                        
+                        ///***********  Start  四级物料代码的备案********************************************************************
+                             if (oi.ifFourCheck){
+                                        FilingProducts__c fp_four =new FilingProducts__c();
+                                        //fp_four.ProductName__c=oi.qp.BGProductRaisecom_Name__c;     //瑞斯康达产品id------报价产品的瑞斯康达产品id
+                                        fp_four.Price__c=oi.qp.Price__c;                            //备案价格------报价产品的销价单价
+                                            if(oi.qp.CollectMining__c==null){          //如果没有填写销售策略，则默认的销售策略赋值为蓝色
+                                                fp_four.CollectMining__c='系统蓝';
+                                            } else {
+                                                fp_four.CollectMining__c=oi.qp.CollectMining__c;             //销售策略------销售策略
+                                            }
+                                        
+                                     	fp_four.MaterialCode4__c=oi.qp.BGProductRaisecom_Name__r.MaterialCode4__c;  //4级物料代码------瑞斯康达产品的4级物料代码
+                                    	fp_four.BGAccount__c=oi.qte.AccountName__c; //客户------最终客户id
+                                    	fp_four.Industry__c=oi.qte.Industry__c;    //行业------最终客户行业
+                                     	// fp.Province__c=oi.qte.citys__c;       //省份------最终客户省份
+                                    	fp_four.BGQuote__c=oi.qte.id;                  //关联备案报价单------报价id
+                                    	fp_four.Start_date__c=oi.qte.Start__c;         //开始日期------开始日期
+                                    	fp_four.End_date__c=oi.qte.End__c;             //结束日期------结束日期
+                                    	//fp_four.AgreementProductActive__c=true;    //是否启用------true
+                                    
+                                    	fpList.add(fp_four);
+                                
+                                                    
+                            }
+                        ///***********  End  四级物料代码的备案********************************************************************
+                        
+                     }
+                   if (this.fpList.size()==0) {
+                        String ms='请勾选需要备案的产品';
+                        ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,ms));
+                        return null;
+                    }else{
+                        try{
+                            insert this.fpList; 
+                            update this.oldfpList;
+                        }catch(Exception e){
+                            return null;
+                        }
+                        //return  new PageReference('/'+this.id);
+                        //return  new PageReference('/apex/AppendSucceed');         00O0k000000VHas?pv0='+this.quoteName+'&pv1='+this.accountName 
+                        return  new PageReference('/00O0k000000Ll8g?pv0='+this.quoteName+'&pv1='+this.accountName);  //可以直接跳转到开发好的报表页面，方便查看备案成功的产品
+                     }
+            
+        }else{
+            String ms='该报价下没有产品';
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,ms));
+            return null ;
+        }
+    }
+   
+
+    
+    //返回按钮
+    public Pagereference ReturnButton(){
+        return new Pagereference('/'+this.quoteid);
+    }
+    
+    
+    //自定义类
+    public class BGQuoteItem {
+        public Boolean ifFiveCheck{get;set;}  
+        public Boolean ifFourCheck{get;set;} 
+        public BGQuoteProduct__c qp {get;set;}
+        Public BGQuote__c qte {get;set;}
+
+        public BGQuoteItem (Boolean ifFiveCheck,Boolean ifFourCheck,BGQuoteProduct__c qp,BGQuote__c qte) {
+            this.ifFiveCheck=ifFiveCheck;
+            this.ifFourCheck=ifFourCheck;
+            this.qp = qp;
+            this.qte = qte;
+        }
+    }
+          
+}
