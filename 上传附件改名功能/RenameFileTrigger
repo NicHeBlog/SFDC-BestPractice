@@ -1,0 +1,34 @@
+/*
+    @Author: Nic HE
+    @Date: 2019.02.13
+    @Function:上传附件之后，更改附件的名称，会把订单流水号添加到附件名称前面。
+*/
+
+public without sharing class renameOrderAttachHandler implements Triggers.Handler {
+     public void handle() {
+            List<ContentDocument> toBeUpdatedDocs = new List<ContentDocument>();
+
+            Set<Id> newDocIDs = new Set<Id> ();
+            for( ContentDocumentLink doc : (List<ContentDocumentLink>) trigger.new  ){
+                newDocIDs.add( doc.Id );
+            }
+    
+            for(ContentDocumentLink objDoc : [SELECT ContentDocumentId,ContentDocument.Title,LinkedEntity.Name from ContentDocumentLink 
+        WHERE Id in :newDocIDs ]){
+                    //system.debug(objDoc.LinkedEntity.Name);
+                    //system.debug(Schema.SObjectType.Object__c.getKeyPrefix());//'a0p' //销售订单的id的前三位
+                    if(string.valueOf(objDoc.LinkedEntityId).startsWith(Schema.SObjectType.Object__c.getKeyPrefix())){    //判断附件的母体是订单的时候，才执行修改名字//if(string.valueOf(objDoc.LinkedEntityId).startsWith('a0p'))
+                         ContentDocument afterRenameDoc= new ContentDocument();
+                         afterRenameDoc.id= objDoc.ContentDocumentId;
+                         afterRenameDoc.Title=objDoc.LinkedEntity.Name+'__'+objDoc.ContentDocument.Title;
+                         toBeUpdatedDocs.add(afterRenameDoc);
+                         update toBeUpdatedDocs;
+                    }else{
+                        system.debug('no need to update file name');
+                    }          
+            }
+        
+            //update toBeUpdatedDocs;
+            system.debug('success');
+            }
+   }
