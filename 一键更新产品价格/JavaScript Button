@@ -1,0 +1,15 @@
+{!REQUIRESCRIPT("/soap/ajax/35.0/connection.js")} 
+{!REQUIRESCRIPT("/soap/ajax/35.0/apex.js")}
+var result = sforce.apex.execute("RefreshOrderProductsPrice","execute",{ids:'{!Object__c.Id}'});
+if(result=="noSource"){
+alert("没有添加报价产品！");
+window.location.reload(); 
+}
+if(result=="success"){
+alert("更新成功！");
+window.location.reload(); 
+}
+if(result=="noupdate"){
+alert("已是最新价格，无需更新！");
+window.location.reload(); 
+}
