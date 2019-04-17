@@ -1,0 +1,49 @@
+/*
+    @Author: Nic HE
+    @Date: 2019.02.13
+    @Function:上传附件之后，更改附件的名称，会把订单流水号添加到附件名称前面。
+*/
+
+@isTest 
+Private class renameOrderAttachTest {
+    @isTest static void testMethod1(){
+        
+        //BGQuote__c b=new BGQuote__c();
+        //insert b;
+        
+        Object__c o=new Object__c();
+        o.RC_Order_No__c='testOrder';
+        o.ConsigneeContactInformation2__c='test';
+        o.ConsigneeName2__c='testname';
+        o.DeliveryAddress__c='testaddress';
+        o.SealDept__c='testdepart';
+        o.OrderType__c='框架式订单';
+        //o.BGQuote__c=b.Name;
+
+        insert o;
+       
+        //string ordername=o.name;
+        
+        ContentVersion cvInfo = new ContentVersion(); 
+        cvInfo.VersionData = Blob.valueOf('打印文件');
+        cvInfo.Title = 'Test - ' + Datetime.now();
+        cvInfo.PathOnClient = 'Test - ' + Datetime.now() + '.pdf';
+        cvInfo.Origin = 'H';
+        cvInfo.ContentLocation = 'S';
+        cvInfo.SharingOption = 'A';
+        insert cvInfo;
+        Id contentDocumentId = [select Id, ContentDocumentId, OwnerId from ContentVersion where Id = :cvInfo.Id].ContentDocumentId;
+        //Id objId=[select Id from Object__c Order By Id Desc Limit 1].Id;
+                
+
+        ContentDocumentLink cDocLink= new ContentDocumentLink();
+        cDocLink.ContentDocumentId=contentDocumentId;//documents[0].Id;//'0690k000000h1HsAAI';//'0690k000000bWDI';//cDoc.Id'';
+        cDocLink.LinkedEntityId=o.id;//objId;//o.id;//documents[0].ParentId;//'0580k000000DkZ1AAK';
+        cDocLink.shareType='V';
+        cDocLink.Visibility = 'AllUsers'; 
+        insert cDocLink;
+        
+    }
+    
+        
+}
