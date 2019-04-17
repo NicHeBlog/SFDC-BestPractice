@@ -1,0 +1,239 @@
+@isTest
+private class AppendToFilingProductsCtrlTest {
+    //public static Profile saleProfile = [select Id from Profile where Name = 'BG销售'];
+    //public static List<User> userList = [select Id,ProfileId,Alias,TimeZoneSidKey,LocaleSidKey,LanguageLocaleKey,EmailEncodingKey
+       // FROM User where id =:UserInfo.getUserId()];
+    //public static RecordType rd3 = [select Id,Name from RecordType where DeveloperName='Normal_BG' and SobjectType='BGQuote__c'];
+    public static RecordType rd4 = [select Id,Name from RecordType where DeveloperName='BG_Feference_Amount' and SobjectType='BGQuote__c'];
+    static testMethod void testMethod1() {
+        String recordType1 = Schema.SObjectType.BGQuote__c.getRecordTypeInfosByDeveloperName().get('BG_Feference_Amount').getRecordTypeId(); // XIAZHI
+    	Account acc = new Account();
+    	acc.Name = 'TEST';
+    	insert acc;
+        ProductRaisecom__c pro = new ProductRaisecom__c();
+        pro.AuthorizedDealerOrice__c = null;
+        pro.ProductRaisecomActive__c=true;
+        pro.Name = 'test';
+        ProductRaisecom__c pro1 = new ProductRaisecom__c();
+        pro1.BGProductRaiseGuidePrice__c = 500;
+        pro1.AuthorizedDealerOrice__c = 400;
+        pro1.BGAuthorizedDealerOrice__c = 200;
+        pro1.ProductRaisecomActive__c=true;
+        pro1.Name = 'test1';
+
+        List<ProductRaisecom__c> p = new List<ProductRaisecom__c>();
+        p.add(pro);
+        p.add(pro1);
+        insert p;
+        
+        BGQuote__c bgq = new BGQuote__c();
+        bgq.RecordTypeId = recordType1;
+        bgq.AccountName__c = acc.Id;
+        bgq.Industry__c = '中国电信';
+        bgq.BG_Industry_2__c = '中国电信';
+        bgq.Start__c=Date.newInstance(2019, 4, 17);
+        bgq.End__c=Date.newInstance(2019, 5, 17);
+        bgq.Date__c=Date.newInstance(2019, 4, 17);
+        insert bgq;
+        FilingProducts__c f = new FilingProducts__c();
+        f.ProductName__c = pro.Id;
+        f.AgreementProductActive__c = true;
+        f.BGAccount__c = bgq.AccountName__c;
+        insert f;
+        
+       System.Test.startTest();
+        BGQuoteProduct__c bg = new BGQuoteProduct__c();
+        bg.Amount__c = 100;
+        bg.Price__c=1000;
+        bg.BGProductRaisecom_Name__c = pro.Id;
+        bg.BGQuoteProjectName__c = bgq.Id;
+        insert bg;
+        
+        BGQuoteProduct__c bg1 = new BGQuoteProduct__c();
+        bg1.Amount__c = 20;
+        bg.Price__c=1020;
+        bg1.BGProductRaisecom_Name__c = pro1.Id;
+        bg1.BGQuoteProjectName__c = bgq.Id;
+        insert bg1;
+
+        ApexPages.currentPage().getParameters().put('quoteId',bgq.Id);
+        AppendToFilingProductsCtrl add = new AppendToFilingProductsCtrl();
+        //add.InputBatch = 'test';
+        //add.getBatch();
+        add.oiList[0].ifFiveCheck = true;
+        add.oiList[0].ifFourCheck = false;
+        add.oiList[0].qp = bg;
+        add.oiList[0].qte = bgq;
+        add.getSelectProductByName();
+        //add.SaveDate();
+        add.ReturnButton();
+
+        AppendToFilingProductsCtrl add2 = new AppendToFilingProductsCtrl();
+        //add2.InputBatch = 'test1';
+        //add2.getBatch();
+        add2.oiList[0].ifFiveCheck = true;
+        add2.oiList[0].ifFourCheck = false;
+        add2.oiList[0].qp = bg1;
+        add2.oiList[0].qte = bgq;
+        add2.getSelectProductByName();
+        //add2.SaveDate();
+        add2.ReturnButton();
+        System.Test.stopTest();
+
+    }
+    
+    static testMethod void testMethod2() {
+        String recordType1 = Schema.SObjectType.BGQuote__c.getRecordTypeInfosByDeveloperName().get('BG_Feference_Amount').getRecordTypeId(); // XIAZHI
+    	Account acc = new Account();
+    	acc.Name = 'TEST';
+    	insert acc;
+        ProductRaisecom__c pro = new ProductRaisecom__c();
+        pro.AuthorizedDealerOrice__c = null;
+        pro.ProductRaisecomActive__c=true;
+        pro.Name = 'test';
+        ProductRaisecom__c pro1 = new ProductRaisecom__c();
+        pro1.BGProductRaiseGuidePrice__c = 500;
+        pro1.AuthorizedDealerOrice__c = 400;
+        pro1.BGAuthorizedDealerOrice__c = 200;
+        pro1.ProductRaisecomActive__c=true;
+        pro1.Name = 'test1';
+
+        List<ProductRaisecom__c> p = new List<ProductRaisecom__c>();
+        p.add(pro);
+        p.add(pro1);
+        insert p;
+        
+        BGQuote__c bgq = new BGQuote__c();
+        bgq.RecordTypeId = recordType1;
+        bgq.AccountName__c = acc.Id;
+        bgq.Industry__c = '中国电信';
+        bgq.BG_Industry_2__c = '中国电信';
+        bgq.Start__c=Date.newInstance(2019, 4, 17);
+        bgq.End__c=Date.newInstance(2019, 5, 17);
+        bgq.Date__c=Date.newInstance(2019, 4, 17);
+        insert bgq;
+        FilingProducts__c f = new FilingProducts__c();
+        f.ProductName__c = pro.Id;
+        f.AgreementProductActive__c = true;
+        f.BGAccount__c = bgq.AccountName__c;
+        insert f;
+        
+       System.Test.startTest();
+        BGQuoteProduct__c bg = new BGQuoteProduct__c();
+        bg.Amount__c = 100;
+        bg.Price__c=1000;
+        bg.BGProductRaisecom_Name__c = pro.Id;
+        bg.BGQuoteProjectName__c = bgq.Id;
+        insert bg;
+        
+        BGQuoteProduct__c bg1 = new BGQuoteProduct__c();
+        bg1.Amount__c = 20;
+        bg.Price__c=1000;
+        bg1.BGProductRaisecom_Name__c = pro1.Id;
+        bg1.BGQuoteProjectName__c = bgq.Id;
+        insert bg1;
+
+        ApexPages.currentPage().getParameters().put('quoteId',bgq.Id);
+        AppendToFilingProductsCtrl add = new AppendToFilingProductsCtrl();
+        //add.InputBatch = 'test';
+        //add.getBatch();
+        add.oiList[0].ifFiveCheck = true;
+        add.oiList[0].ifFourCheck = false;
+        add.oiList[0].qp = bg;
+        add.oiList[0].qte = bgq;
+        add.getSelectProductByName();
+        //add.SaveDate();
+        add.ReturnButton();
+
+        AppendToFilingProductsCtrl add2 = new AppendToFilingProductsCtrl();
+        //add2.InputBatch = 'test1';
+        //add2.getBatch();
+        add2.oiList[0].ifFiveCheck = true;
+        add2.oiList[0].ifFourCheck = false;
+        add2.oiList[0].qp = bg1;
+        add2.oiList[0].qte = bgq;
+        add2.getSelectProductByName();
+        //add2.SaveDate();
+        add2.ReturnButton();
+        System.Test.stopTest();
+
+    }
+    
+     static testMethod void testMethod3() {
+        String recordType1 = Schema.SObjectType.BGQuote__c.getRecordTypeInfosByDeveloperName().get('BG_Feference_Amount').getRecordTypeId(); // XIAZHI
+    	Account acc = new Account();
+    	acc.Name = 'TEST';
+    	insert acc;
+        ProductRaisecom__c pro = new ProductRaisecom__c();
+        pro.AuthorizedDealerOrice__c = null;
+        pro.ProductRaisecomActive__c=true;
+        pro.Name = 'test';
+        ProductRaisecom__c pro1 = new ProductRaisecom__c();
+        pro1.BGProductRaiseGuidePrice__c = 500;
+        pro1.AuthorizedDealerOrice__c = 400;
+        pro1.BGAuthorizedDealerOrice__c = 200;
+        pro1.ProductRaisecomActive__c=true;
+        pro1.Name = 'test1';
+
+        List<ProductRaisecom__c> p = new List<ProductRaisecom__c>();
+        p.add(pro);
+        p.add(pro1);
+        insert p;
+        
+        BGQuote__c bgq = new BGQuote__c();
+        bgq.RecordTypeId = recordType1;
+        bgq.AccountName__c = acc.Id;
+        bgq.Industry__c = '中国电信';
+        bgq.BG_Industry_2__c = '中国电信';
+        bgq.Start__c=Date.newInstance(2019, 4, 17);
+        bgq.End__c=Date.newInstance(2019, 5, 17);
+        bgq.Date__c=Date.newInstance(2019, 4, 17);
+        insert bgq;
+        FilingProducts__c f = new FilingProducts__c();
+        f.ProductName__c = pro.Id;
+        f.AgreementProductActive__c = true;
+        f.BGAccount__c = bgq.AccountName__c;
+        insert f;
+        
+       System.Test.startTest();
+        BGQuoteProduct__c bg = new BGQuoteProduct__c();
+        bg.Amount__c = 100;
+        bg.Price__c=1000;
+        bg.BGProductRaisecom_Name__c = pro.Id;
+        bg.BGQuoteProjectName__c = bgq.Id;
+        insert bg;
+        
+        BGQuoteProduct__c bg1 = new BGQuoteProduct__c();
+        bg1.Amount__c = 20;
+        bg.Price__c=1030;
+        bg1.BGProductRaisecom_Name__c = pro1.Id;
+        bg1.BGQuoteProjectName__c = bgq.Id;
+        insert bg1;
+
+        ApexPages.currentPage().getParameters().put('quoteId',bgq.Id);
+        AppendToFilingProductsCtrl add = new AppendToFilingProductsCtrl();
+        //add.InputBatch = 'test';
+        //add.getBatch();
+        add.oiList[0].ifFiveCheck = false;
+        add.oiList[0].ifFourCheck = true;
+        add.oiList[0].qp = bg;
+        add.oiList[0].qte = bgq;
+        add.getSelectProductByName();
+        //add.SaveDate();
+        add.ReturnButton();
+
+        AppendToFilingProductsCtrl add2 = new AppendToFilingProductsCtrl();
+        //add2.InputBatch = 'test1';
+        //add2.getBatch();
+        add2.oiList[0].ifFiveCheck = false;
+        add2.oiList[0].ifFourCheck = true;
+        add2.oiList[0].qp = bg1;
+        add2.oiList[0].qte = bgq;
+        add2.getSelectProductByName();
+        //add2.SaveDate();
+        add2.ReturnButton();
+        System.Test.stopTest();
+
+    }
+   
+}
