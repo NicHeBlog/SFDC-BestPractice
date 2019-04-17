@@ -1,0 +1,22 @@
+/*
+	作者：Nic HE
+	时间：2019.03.05
+*/
+public without sharing class CloneOppHandler implements Triggers.Handler {
+    public void handle() {
+        for (Opportunity l:(List<Opportunity>)Trigger.new) {
+            String province2 = '';
+            for (Account a : [SELECT id , Province__c FROM Account WHERE id =: l.AccountId LIMIT 1] ) {
+               province2 = a.Province__c;
+            }                                            //获取销售机会下的客户的省份
+            l.Province2__c=province2;
+            if (l.Project_Province__c!=l.Province2__c && l.peopol__c==null){
+                l.peopol__c.addError('项目所在地和客户省份不一致，跨区办事处主任必填');    //判断销售机会下的项目所在地和客户的省份是否一致
+            }else {
+        	l.Audit_State__c= '草稿';         // Audit_State 置为草稿
+        	l.Apply_Stocking_Status__c='';   //Apply_Stocking_Status 置为空
+        	l.PublicityRange__c = '';        //PublicityRange置为空
+            }
+        }
+    }
+}
