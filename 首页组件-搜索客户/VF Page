@@ -1,0 +1,27 @@
+<apex:page controller="SearchAccountDataColl" showHeader="true"  id="thePage" sidebar="true">
+<script>
+    function loadingCaccel(){
+  document.getElementById("loading").style.display="";
+ }
+</script>
+<apex:form id="ids">
+<apex:pageMessages id="message" />
+<div id="loading" style="display:none;position:fixed !important;position:absolute;top:0;left:0;height:100%; width:100%; z-index:1005; background:#fff url({!URLFOR($Resource.loading)}) no-repeat center center; opacity:0.6; filter:alpha(opacity=60);font-size:14px;line-height:20px;"/>
+    <span>
+        <apex:inputText style="width: 120px;" id="NameText" value="{!search}" label="输入客户名称查询：">      
+        </apex:inputText>
+        <!-- 回车事件 -->
+        <apex:commandButton value="查询"  action="{!searchData}" onclick="loadingCaccel()" reRender="ids,message" status="LoadingStatusSpinner"/>
+    </span>
+<!-- <apex:pageBlock>
+    <apex:pageBlockSection title="客户名称" columns="1" id="selectProduct">
+                <apex:pageBlockTable value="{!accList}" var="acc" id="accList">
+                     <apex:column headerValue="客户名称" width="20%" >
+                        <apex:outputField id="productRaisecomSeries" value="{!acc.Name}" label="产品系列"/>
+                    </apex:column>
+                </apex:pageBlockTable>
+    </apex:pageBlockSection>
+</apex:pageBlock>  -->   
+
+ </apex:form>   
+</apex:page>
