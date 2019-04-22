@@ -13,4 +13,5 @@
 5. **一些测试类练习**
 6. **首页组件-搜索客户**
    + i. 简述：输入客户名称，系统返回客户对象下是否已经存在此客户
+   + ii.功能：Home Page Component中添加VFpage,Home Page Layout中设定首页的显示与否
 
