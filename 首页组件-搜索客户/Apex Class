@@ -1,0 +1,27 @@
+public class SearchAccountDataColl {
+  public String search {get;set;}    //输入的数据
+  public List<Account> accList {get;set;}
+    public SearchAccountDataColl() {
+        this.accList = new List<Account>();
+    }
+    public void searchData(){
+      if(accList.size()>0)
+      {
+        accList.clear();
+      }
+      if(accList.size()==0)
+      {
+        if(search!=null && search!='')
+        {
+          List<Account> accsList = [Select id,Name from Account where name =:search];
+          if(accsList.size()==0){
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.INFO,'查无此客户!'));
+          }else if(accsList.size()>0){
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.INFO,'客户已存在!'));
+          }
+        }else{
+          ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.INFO,'请输入数据!'));
+        }
+      }
+    }
+}
