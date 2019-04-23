@@ -14,4 +14,5 @@
 6. **首页组件-搜索客户**
    + i. 简述：输入客户名称，系统返回客户对象下是否已经存在此客户
    + ii.功能：Home Page Component中添加VFpage,Home Page Layout中设定首页的显示与否
-
+7. **VF页面静态资源的调用**
+   + i. 简述：系统中setup中static resource可以上传静态的js/css资源库，然后VF页面中可以直接调用资源库中的代码以及图片 
