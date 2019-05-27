@@ -1,0 +1,55 @@
+/*
+	功能：Version 1： 销售机会的公式范围发生变化时，新建或者更新项目公示
+*/
+public without sharing class CreateProjectPublicityHandler implements Triggers.Handler {
+    public static RecordType rd = [select Id,Name from RecordType where DeveloperName='BG' and SobjectType='Project_Publicity__c'];
+    public static RecordType rd1 = [select Id,Name from RecordType where DeveloperName='National' and SobjectType='Project_Publicity__c'];
+    
+    public void handle() {
+        Map<Id,List<String>> smap = new Map<Id,List<String>>();
+    	List<Project_Publicity__c> pplist = new List<Project_Publicity__c>();
+        for (Opportunity opp:(List<Opportunity>)Trigger.new) {
+            Opportunity oldopp = (Opportunity)Trigger.oldMap.get(opp.Id);
+            if (opp.Audit_State__c != '草稿' && oldopp.PublicityRange__c != opp.PublicityRange__c) {
+                List<String> slist = new List<String>();
+                slist.add(opp.PublicityRange__c);
+                slist.add(opp.Name);
+                smap.put(opp.Id,slist);
+             }
+        }
+        List<Project_Publicity__c> pplist2 = [Select Id,ProjectName__c,RecordTypeId From Project_Publicity__c Where ProjectName__c IN: smap.keySet()];
+        if (pplist2.size() > 0) {
+            for (Project_Publicity__c pp: pplist2) {
+                if (smap.containsKey(pp.ProjectName__c)) {
+                    if (smap.get(pp.ProjectName__c)[0] == '全国') {
+                        pp.RecordTypeId = rd1.Id;
+                    }
+                    if (smap.get(pp.ProjectName__c)[0] == '行业BG'){
+                        pp.RecordTypeId = rd.Id;
+                    }
+                    smap.remove(pp.ProjectName__c);
+                }
+            }
+            update pplist2;
+        }
+        for (Id ids:smap.keySet()) {
+            if (smap.get(ids)[0] == '全国') {
+                Project_Publicity__c pp = new Project_Publicity__c();
+                pp.Name = smap.get(ids)[1]+'（公示）';
+                pp.ProjectName__c = ids;
+                pp.RecordTypeId = rd1.Id;
+                pplist.add(pp);
+            }
+            if (smap.get(ids)[0] == '行业BG') {
+                Project_Publicity__c pp = new Project_Publicity__c();
+                pp.Name = smap.get(ids)[1]+'（公示）';
+                pp.ProjectName__c = ids;
+                pp.RecordTypeId = rd.Id;
+                pplist.add(pp);
+            } 
+        }
+        if (pplist.size() > 0) {
+        	insert pplist;
+        }
+    }
+}
