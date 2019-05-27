@@ -1,0 +1,39 @@
+/*
+ 重写逻辑，当销售机会勾选了‘是否报备’并且审批通过的时候，自动创建项目公示
+*/
+public without sharing class CreateProjectPublicityHandler implements Triggers.Handler {    
+    public static RecordType rd1 = [select Id,Name from RecordType where DeveloperName='National' and SobjectType='Project_Publicity__c'];
+    
+    public void handle() {
+        Map<Id,String> oppMap=new Map<Id,String>();
+    	List<Project_Publicity__c> pplist = new List<Project_Publicity__c>();
+        for (Opportunity opp:(List<Opportunity>)Trigger.new) {
+            if(opp.Audit_State__c=='审批通过' && opp.Preparation__c==true){
+              oppMap.put(opp.Id,opp.Name);
+            }
+        }
+        
+        //如果已经存在了项目公示，再次更改opp不会二次创建项目公示
+        List<Project_Publicity__c> pplist_existed = [Select Id,ProjectName__c,RecordTypeId From Project_Publicity__c Where ProjectName__c IN: oppMap.keySet()];
+        if(pplist_existed.size()>0){
+            for(Project_Publicity__c pp : pplist_existed){
+                if (oppMap.containsKey(pp.ProjectName__c)){
+                    oppMap.remove(pp.ProjectName__c);
+                }
+            }
+        }
+        
+        for (Id ids:oppMap.keySet()) { 
+                Project_Publicity__c pp = new Project_Publicity__c();
+                pp.Name = oppMap.get(ids)+'（公示）';
+                pp.ProjectName__c = ids;
+                pp.RecordTypeId = rd1.Id;
+                pplist.add(pp);
+            
+        }
+        if (pplist.size() > 0) {
+        	insert pplist;
+        }
+     }
+    
+}
