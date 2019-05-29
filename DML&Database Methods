@@ -38,3 +38,9 @@ SELECT Id,Account.Id,Account.Industry from Contact where Phone='111222333'
 
 *****************************利用 SobjectType 来确定要查询的对象*************************************************
  public static RecordType rd = [select Id,Name from RecordType where DeveloperName='BG' and SobjectType='Project_Publicity__c'];
+ 
+ 
+ 
+ 
+ 
+ 
