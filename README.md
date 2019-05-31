@@ -19,3 +19,7 @@
 8. **销售机会审批通过创建项目公示**
    + i. 简述：销售机会中勾选‘报备’并且审批通过的时候，自动写入到另一个对象项目公示之中，一边销售可以看到其他人在跟进的项目
    + ii.功能：after Update Trigger
+9. **RelatedList 批量添加费用明细**
+   + i. 简述：通过创建Lookup字段from对象A to对象B，通过VF Page可以批量添加对象A关联到对象B,并且可以添加一行或者删除一行
+   + ii.功能：VF(AddCampaignBudget)+Apex(AddCampaignBudgetController)
+
