@@ -1,0 +1,64 @@
+/* 
+ @Author:Nic HE
+ @Date:2019.05.31
+ @Function:批量添加渠道活动的费用明细
+*/
+
+public with sharing class AddCampaignBudgetController {
+	
+	public Id cid{get;set;}        //campaign Id 
+    public List<CampaignBudget__c> camBudgetList {get;set;}  // 渠道活动费用List 
+
+    public AddCampaignBudgetController() {
+    	this.cid = ApexPages.currentPage().getParameters().get('cid');
+    	this.camBudgetList=new List<CampaignBudget__c>();
+        
+    	camBudgetList=[Select cb.Name,  //费用种类
+                              cb.price__c,      //单价
+                              cb.amount__c              //数量
+       		           From CampaignBudget__c cb where cb.CampaignName__c=:cid];
+        
+    	//初始时没有费用记录，系统创建3个空的
+    	 if(camBudgetList.size()==0){      
+    	 	 for (Integer i=0;i<3 ;i++ ) {
+	    		CampaignBudget__c c = new CampaignBudget__c(); 
+	    		c.CampaignName__c=cid;
+	    		camBudgetList.add(c);
+    		} 	
+    	 } 
+    }
+    
+    //添加一行
+    public void add(){
+    	CampaignBudget__c cb = new CampaignBudget__c();
+    	cb.CampaignName__c=cid;
+    	camBudgetList.add(cb);
+    }
+    
+    //删除一行
+	public void DeleteButton()
+	{
+        CampaignBudget__c deletedCb=new CampaignBudget__c();
+        if (camBudgetList.get(camBudgetList.size()-1).Id==null){           //不是库中的数据直接remove
+            camBudgetList.remove(camBudgetList.size()-1);	
+        } else {                                                           
+            deletedCb.Id=camBudgetList.get(camBudgetList.size()-1).Id;    //存储下即将被删除的费用的Id
+            camBudgetList.remove(camBudgetList.size()-1);	             //列表中移除
+            delete deletedCb;                                            //CRM数据库中删除
+        }
+       
+	} 
+    
+  	//保存
+	 public Pagereference getCamBudget(){
+
+        upsert camBudgetList;
+		return new Pagereference('/'+this.cid);
+	}
+	
+	//取消
+    public Pagereference ReturnButton(){
+        return new Pagereference('/'+this.cid);
+    }
+    
+}
