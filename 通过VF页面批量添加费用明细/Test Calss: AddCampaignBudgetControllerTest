@@ -1,0 +1,40 @@
+@isTest
+private class AddCampaignBudgetControllerTest {
+
+    static testMethod void testMethod1() {
+        String recordType1 = Schema.SObjectType.Campaign.getRecordTypeInfosByDeveloperName().get('ChannelActivity').getRecordTypeId(); //campaign渠道活动
+    	
+        Campaign cp = new Campaign();
+        cp.Name='测试渠道活动';
+        cp.RecordTypeId=recordType1;
+        insert cp;
+        
+       System.Test.startTest();
+        List<CampaignBudget__c> camBudgetList =new List<CampaignBudget__c>();
+        CampaignBudget__c cb1 =new CampaignBudget__c();
+        cb1.BudgetType__c='住宿费';
+        cb1.BudgetComments__c='汉庭';
+        cb1.price__c=300;
+        cb1.amount__c=3;
+        cb1.CampaignName__c=cp.Id;
+        camBudgetList.add(cb1);
+        
+        CampaignBudget__c cb2 =new CampaignBudget__c();
+        cb2.BudgetType__c='茶歇';
+        cb2.BudgetComments__c='普洱';
+        cb2.price__c=400;
+        cb2.amount__c=2;
+        cb2.CampaignName__c=cp.Id;
+        camBudgetList.add(cb2);
+        
+        ApexPages.currentPage().getParameters().put('cid',cp.Id);
+        AddCampaignBudgetController add= new AddCampaignBudgetController();
+        add.add();
+        add.DeleteButton();
+        add.getCamBudget();
+        add.ReturnButton();
+      System.Test.stopTest();
+
+    }
+     
+}
