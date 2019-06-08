@@ -22,4 +22,6 @@
 9. **RelatedList 批量添加费用明细**
    + i. 简述：通过创建Lookup字段from对象A to对象B，通过VF Page可以批量添加对象A关联到对象B,并且可以添加一行或者删除一行
    + ii.功能：VF(AddCampaignBudget)+Apex(AddCampaignBudgetController)
+10. **变换排序方式** 
+   + i. 简述：通过定义一个private变量，可以方便的定义数据的排序方式
 
