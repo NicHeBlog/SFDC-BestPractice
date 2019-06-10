@@ -1,0 +1,18 @@
+@isTest
+private class UpdateOrderRegion_Test {
+    @isTest static void testMethod1_noupdate() {
+        
+         String RtId = Schema.SObjectType.Object__c.getRecordTypeInfosByName().get('非运营商直销订单').getRecordTypeId();  
+         Object__c bg = new Object__c();
+         bg.RC_Order_No__c = 'tester_1';
+         bg.ConsigneeContactInformation2__c='12212';
+         bg.ConsigneeName2__c='testname';
+         bg.DeliveryAddress__c='testaddress';
+         bg.SealDept__c='testdepart';
+         bg.OrderType__c='框架式订单';
+         bg.RecordTypeId=RtId;
+         //bg.RecordTypeId='0120I000001DlOUQA0';
+                      
+         insert bg;
+    }
+}
