@@ -1,0 +1,101 @@
+<apex:page renderas="pdf" controller="QuotationPDFColl">
+<html>
+<head>
+<title>瑞斯康达科技发展股份有限公司报价单</title>
+<apex:stylesheet value="{!$Resource.PDFDocumentStyle}" />
+</head>
+    <body style="font-family: 'Arial Unicode MS';font-size:10.0pt;">
+    
+        <div style="margin-bottom: -10px;border-bottom:1px ;" border="1">
+            <c:PDFHeaderFooter type="header" position="left">
+            <apex:image style="width: 140px;height: 50px;" url="{!URLFOR($Resource.RaisecomLogo)}"></apex:image>
+                <!-- <apex:image url="{!$Resource.icon}" style="width: 140px;height: 50px;"></apex:image> -->
+            </c:PDFHeaderFooter>
+            <c:PDFHeaderFooter type="header" position="right" >瑞斯康达</c:PDFHeaderFooter>
+            <hr style="margin-top: 0px;" />
+        </div>
+        <div style="height: 30px"></div>
+        <div style="margin-top: 0px;">
+            <span align="center" style="font-size: 20px;margin-top: 50px;margin-left: 180px;">瑞斯康达科技发展股份有限公司报价单</span>
+            <span style="font-size: 12px;margin-top: 20px;margin-left: 500px;">报价编号:{!qu.BJNumber__c}</span>
+            <div style="height: 30px"></div>
+        <table cellpadding="0" cellspacing="0" border="1">
+            <tr style="height: 40px;">
+                <td  align="center" width="99px" colspan="">代理商名称</td>
+                <td  align="center" width="300px" colspan="3">{!qu.Distributor__r.Name}</td>
+                <td  align="center" width="86px" colspan="">行业</td>
+                <td  align="center" width="300px" colspan="3">{!qu.Industry__c}</td>
+            </tr>
+            <tr style="height: 40px;">
+                <td  align="center" width="99px" colspan="">项目名称</td>
+                <td  align="center" width="300px" colspan="3">{!qu.Name}</td>
+                <td  align="center" width="86px" colspan="">最终用户</td>
+                <td  align="center" width="300px" colspan="3">{!qu.AccountName__r.Name}</td>
+            </tr>   
+            <tr style="height: 40px;">
+                <td  align="center" width="99px" colspan="">项目所在地</td>
+                <td  align="center" width="300px" colspan="3">{!qu.Project_Province__c}</td>
+                <td  align="center" width="86px" colspan=""></td>
+                <td  align="center" width="300px" colspan="3"></td>
+            </tr>
+            <tr style="height: 25px;">
+                <td align="center" width="99px" colspan="">序号</td>
+                <td align="center" width="186px" colspan="">产品名称</td>
+                <td align="center" width="186px" colspan="">中文名称</td>
+                <!-- <td align="center" width="150px" colspan="">规格型号</td> -->
+                <td align="center" width="70px" colspan="">数量</td>
+                <td align="center" width="40px" colspan="">单价/元</td>
+                <td align="center" width="124px" colspan="">合计/元</td>
+                <td align="center" width="250px" colspan="">备注</td>
+            </tr>
+            <apex:repeat value="{!flagClassList}" var="bg" id="ID2">
+                <tr style="height: 25px;">
+                    <td align="center" width="99px" colspan="">{!bg.count}</td>
+                    <td align="center" width="186px" colspan="">{!bg.bq.RCProducts__c}</td>
+                    <td align="center" width="186px" colspan="">{!bg.bq.BGProductRaisecom_Name__r.ChineseName__c}</td>
+                    <!-- <td align="center" width="150px" colspan="">{!bg.temp}</td> -->
+                    <td align="center" width="70px" colspan="">{!bg.bq.Amount__c}</td>
+                    <td align="center" width="40px" colspan="">{!bg.bq.Price__c}</td>
+                    <td align="center" width="124px" colspan="">{!bg.bq.TotlePrice__c}</td>
+                    <td align="center" width="250px" colspan="">{!bg.bq.Remark__c}</td>
+                </tr>
+            </apex:repeat>
+            <tr style="height: 37px;">
+                <td align="center" width="99px" colspan="">合计金额(小写)</td>
+                <td align="center" width="186px" colspan="">{!qu.BGtotle__c}</td>
+                <td align="center" width="200px" colspan="2">合计金额(大写)</td>
+                <td align="center" width="379px" colspan="4">{!rmb}</td>
+            </tr>
+            <tr style="height: 24px;">
+                <td align="center" width="99px" rowspan="3" colspan="">备注可选</td>
+                <!-- <td align="left" width="808px" colspan="6">1.本报价有效期:{!qu.Quote_Validity__c}</td> -->
+                <td align="left" width="808px" colspan="7">1.供货周期:{!qu.Suplly_Period__c}</td>
+            </tr>
+            <!-- <tr style="height: 24px;">
+                
+            </tr> -->
+            <tr style="height: 24px;">
+                <td align="left" width="808px" colspan="7">2.付款方式:{!qu.Payment_Type__c}</td>
+            </tr>
+            <tr style="height: 24px;">
+                <td align="left" width="808px" colspan="7">3.质保期:{!qu.period2__c}</td>
+            </tr>
+            <tr style="height: 34px;">
+                <td align="center" width="99px" colspan="">报价人</td>
+                <td align="center" width="429px" colspan="3">{!qu.Owner.Name}</td>
+                <td align="center" width="86px" colspan="">联系方式</td>
+                <td align="center" width="293px" colspan="3">{!o.MobilePhone}</td>
+            </tr>
+        </table>
+
+        </div>
+        <div style="float: right; margin-top: 10%;">
+            <span>瑞斯康达科技发展股份有限公司</span><br/>
+            报价日期：<span><apex:outputText value="{0,date,yyyy-MM-dd}">
+                                    <apex:param value="{!qu.Date__c}" />
+                            </apex:outputText>
+            </span>
+        </div>
+    </body>
+</html>
+</apex:page>
