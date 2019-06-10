@@ -1,0 +1,146 @@
+
+public without sharing class QuotationPDFColl {
+    //拿到按钮传过来的ID
+    String ids = apexpages.currentPage().getParameters().get('id');
+    public String rmb {get;set;}
+    public Account acc {get;set;}
+    public Opportunity opp {get;set;}
+    public BGQuote__c qu {get;set;}
+    public User user{get;set;}
+  public User o {get;set;}
+    public List<flagClass> flagClassList {get;set;}
+  public String accName{get;Set;}
+  public Boolean flag{get;set;}
+    public QuotationPDFColl() {
+       this.flagClassList=new List<flagClass>();
+        List<BGQuoteProduct__c> BGQuotationlist = null;
+       //拿到当前的user
+       user = [SELECT Name,Phone FROM User where Id =: UserInfo.getUserId()];  
+       //查询出根据按钮传过来的报价ID对应的记录
+        Set<ID> oppidSet = new Set<ID>();
+       qu = [Select ID,Name,Date__c,
+               period2__c,
+               Opportunity__c,
+               Opportunity__r.Industry2__c,
+               Owner.Name,
+               Distributor__r.Name,
+               Phone__c,
+               AccountName__c, 
+               Account__c,
+               Industry__c,       //报价大行业
+               AccountName__r.Industry2__c,
+               Project_Province__c,
+               AccountName__r.Name,
+               BJNumber__c,         //报价编号
+               Project_Principal__r.Name,
+               BGtotle__c,
+               Closingunit__r.Industry2__c,
+               //Quote_Validity__c,   //本报价有效期
+               Suplly_Period__c,    //供货周期
+               Payment_Type__c,     //付款方式
+               warranty__c          //质保期
+               From BGQuote__c 
+               where id =:ids
+            ];
+        String n = qu.Owner.Id;
+        o = [Select id,Name,MobilePhone from User where Id =:n and IsActive=true];
+        rmb = translate.translate(qu.BGtotle__c);
+       oppidSet.add(qu.Opportunity__c);
+       System.debug('-----'+oppidSet.size());
+       Set<ID> accidSet = new Set<ID>();
+       if(!oppidSet.contains(null)){
+        System.debug('==========');
+            //根据报价查询出父对象业务机会
+           opp = [select ID,Name,
+                Account.Name,
+                Project_Province__c,
+                DistributorCustomerName__r.Name,
+                AccountID,
+                RecordType.Name 
+                From
+                Opportunity 
+                where id in:oppidSet
+                ];
+                if(opp!=null){
+                  accidSet.add(opp.AccountId);
+                }
+
+          //根据业务机会查找客户
+          acc = [Select ID,Name,
+              Province__c,  //区域省
+              CIty__c,
+              BG_Industry_2__c
+              From 
+              Account
+              where id in:accidSet
+               ];
+
+          if(opp.RecordType.Name =='BG直销项目'){
+              // accName = acc.Name;
+              flag = false;
+            }else{
+              // accName = opp.DistributorCustomerName__r.Name;
+              flag = true;
+            }          
+       }
+       
+        //根据报价查找报价产品
+        BGQuotationlist =[Select id,Name,RCProducts__c,
+                            BGProductRaisecom_Name__c,Product_Remark__c,
+                            BGProductRaisecom_Name__r.ProductRaisecomModel__c,  //版本（规格型号）
+                  // BGProductRaisecom_Name__r.ProductRaisecomModel__c,
+                            Amount__c,                  //数量
+                            Price__c,                   //单价
+                            Remark__c,                  //备注
+                            TotlePrice__c,              //总价
+                            BGProductRaisecom_Name__r.ChineseName__c,    //产品中文名称
+                            BGProductRaisecom_Name__r.Name,
+                            BGQuoteProjectName__c                   //报价
+                            From
+                            BGQuoteProduct__c 
+                            where 
+                            BGQuoteProjectName__c =:ids
+                            ];
+      if(BGQuotationlist.size()!=0){
+        Integer count=0;
+            for(BGQuoteProduct__c bg : BGQuotationlist){
+              //判断备注不为空，再去调用换行方法，否则报空指针错误
+              if(bg.Remark__c!=null && bg.Remark__c!=''){
+                 bg.Remark__c = repla(bg.Remark__c,13);
+              }
+              count++;
+              FlagClass flagClass=new FlagClass();
+              String s = bg.BGProductRaisecom_Name__r.Name;
+              flagClass.count=count;
+              if(s.indexOf('PZ')>0){
+                flagClass.temp = bg.Product_Remark__c;
+              }else{
+                flagClass.temp = bg.BGProductRaisecom_Name__r.ProductRaisecomModel__c;
+              }
+              flagClass.bq=bg;
+              flagClassList.add(flagClass);
+         }
+      }
+    }
+    public static String repla(String str,Integer size){
+          String tempStr = '';
+          Integer startSize =0;
+          Integer endSize = size;
+          for(Integer i = 0;i <= str.length()/size ;i++)
+          {
+           if(endSize>=str.length())
+           {
+               endSize=str.length();
+           }
+           tempStr=tempStr+'\n'+str.substring(startSize,endSize);
+           startSize = startSize+size;
+           endSize = endSize+size;
+          }
+        return tempStr;
+    }
+  public class FlagClass{
+    public Integer count{get;set;}
+    public String temp {get;set;}
+    public BGQuoteProduct__c bq{get;set;}
+  }
+}
