@@ -1,0 +1,68 @@
+// *@Author:Nick
+// *@Date:2017.6.30
+// *覆盖率：95%
+ //*@Function:行业网报价的PDF页面控制类
+@isTest
+private class QuotationPDFCollTest {
+    static testMethod void testMethod1() {
+        Profile saleProfile = [ select id from Profile where Name = '系统管理员'];
+	    List<User> userList = [select id,ProfileId,Alias,TimeZoneSidKey,LocaleSidKey,
+	    LanguageLocaleKey,EmailEncodingKey from User where id =:UserInfo.getUserId()];
+	    User u = new User();
+	    u.Username='supUser@123.com';
+	    u.LastName='supUser';
+	    u.Email='supUser@123.com';
+	    u.Alias=userList[0].Alias;
+	    u.TimeZoneSidKey=userList[0].TimeZoneSidKey;
+	    u.ProfileId=saleProfile.Id;//简档
+	    u.LocaleSidKey=userList[0].LocaleSidKey;
+	    u.LanguageLocaleKey=userList[0].LanguageLocaleKey;
+	    u.EmailEncodingKey=userList[0].EmailEncodingKey;
+	    u.CommunityNickname='supUser';
+	    insert u;
+	    ProductRaisecom__c pro = new ProductRaisecom__c();
+    	 pro.ProductRaisecomActive__c=true;
+    	 pro.ProductRaisecomLine__c='PON网络';
+    	 insert pro;
+
+        Account acc = new Account();
+        acc.Name = 'test';
+        insert acc;
+        SalesKPI__c s = new SalesKPI__c();
+        s.Name = '123';
+        s.Yearly__c = '2017';
+        s.Sales__c = u.Id;
+        insert s;
+        Id id1 = Schema.SObjectType.Opportunity.getRecordTypeInfosByName().get('BG直销项目').getRecordTypeId();
+        Opportunity opp = new Opportunity();
+        System.runAs(u){
+            opp.Industry2__c= '能源';
+            opp.Industry3__c= '中石油';
+            opp.Audit_State__c = '审批通过';
+            opp.AccountId = acc.Id;
+            opp.Name = 'test';
+            opp.StageName = 'test';
+            opp.CloseDate = Date.today();
+            opp.RecordTypeId = id1;
+            insert opp;
+        }
+
+        BGQuote__c bgq = new BGQuote__c();
+        bgq.Opportunity__c = opp.Id;
+        bgq.OwnerId = u.Id;
+        bgq.Industry__c= '能源';
+        bgq.BG_Industry_2__c= '中石油';
+        insert bgq;
+        String n = bgq.Owner.Name;
+        System.Test.startTest();
+        BGQuoteProduct__c bgp = new BGQuoteProduct__c();
+        bgp.BGProductRaisecom_Name__c = pro.Id;
+        bgp.Remark__c = 'testsdfsdfasdf';
+        bgp.BGQuoteProjectName__c = bgq.Id;
+        insert bgp;
+        System.Test.stopTest();
+        String ids = apexpages.currentPage().getParameters().put('id',bgq.Id);
+        QuotationPDFColl q = new QuotationPDFColl();
+
+    }
+}
