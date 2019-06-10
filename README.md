@@ -25,6 +25,6 @@
 10. **变换排序方式** 
    + i. 简述：通过定义一个private变量，可以方便的定义数据的排序方式
 11. **PDF打印页面**
-   + i. 简述：页面点击VFPage render As PDF
+   + i. 简述：页面点击VFPage render As PDF 
    + ii.功能：VF(QuotationPDF2)+Apex(QuotationPDFColl)
 
