@@ -27,4 +27,6 @@
 11. **PDF打印页面**
    + i. 简述：页面点击VFPage render As PDF 
    + ii.功能：VF(QuotationPDF2)+Apex(QuotationPDFColl)
-
+12. **业务员的跨区下单问题**
+   + i. 简述：记录插入系统之前，根据所选的省份，后台匹配对应的行政区划，赋值给相应字段。
+   + ii.功能：before insert & before update trigger
