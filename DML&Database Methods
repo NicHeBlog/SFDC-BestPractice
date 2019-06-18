@@ -40,7 +40,9 @@ SELECT Id,Account.Id,Account.Industry from Contact where Phone='111222333'
  public static RecordType rd = [select Id,Name from RecordType where DeveloperName='BG' and SobjectType='Project_Publicity__c'];
  
  
- *************************** Bad Way *************************************************************************************
+ 
+ 
+ *************************** Bad Way 不要在for 循环中使用DML语句，很容易达到governor limits****************************
  public with sharing class AccountHandler {
     public static void CreateNewOpportunity(List<Account> accts) {
         for (Account a : accts) {
@@ -54,8 +56,8 @@ SELECT Id,Account.Id,Account.Industry from Contact where Phone='111222333'
     }
 }
 
-
 **************************** Good Way ******************************************************************************
+***************************因为系统可以一次性处理200条数据，所以要充分利用这个特性***************************************
 public with sharing class AccountHandler {
     public static void CreateNewOpportunity(List<Account> accts) {
         List<Opportunity> opps = new List<Opportunity>();
