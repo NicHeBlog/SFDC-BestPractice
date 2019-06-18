@@ -40,6 +40,42 @@ SELECT Id,Account.Id,Account.Industry from Contact where Phone='111222333'
  public static RecordType rd = [select Id,Name from RecordType where DeveloperName='BG' and SobjectType='Project_Publicity__c'];
  
  
+ *************************** Bad Way *************************************************************************************
+ public with sharing class AccountHandler {
+    public static void CreateNewOpportunity(List<Account> accts) {
+        for (Account a : accts) {
+            Opportunity opp = new Opportunity();
+            opp.Name = a.Name + ' Opportunity';
+            opp.AccountId = a.Id;
+            opp.StageName = 'Prospecting';
+            opp.CloseDate = System.Today().addMonths(1);
+            insert opp;
+        }
+    }
+}
+
+
+**************************** Good Way ******************************************************************************
+public with sharing class AccountHandler {
+    public static void CreateNewOpportunity(List<Account> accts) {
+        List<Opportunity> opps = new List<Opportunity>();
+        for (Account a : accts) {
+            Opportunity opp = new Opportunity();
+            opp.Name = a.Name + ' Opportunity';
+            opp.AccountId = a.Id;
+            opp.StageName = 'Prospecting';
+            opp.CloseDate = System.Today().addMonths(1);
+            opps.add(opp);
+        }
+        if (opps.size() > 0) {
+            insert opps;
+        }
+    }
+}
+
+
+ 
+ 
  
  
  
