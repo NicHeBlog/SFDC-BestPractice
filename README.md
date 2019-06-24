@@ -30,3 +30,6 @@
 12. **业务员的跨区下单问题**
    + i. 简述：记录插入系统之前，根据所选的省份，后台匹配对应的行政区划，赋值给相应字段。
    + ii.功能：before insert & before update trigger
+13. **Js Button监测两个产品名称的值不一致**
+   + i. 简述：点击Js Button触发对于related List中的两个值的比较
+   +ii. 功能：JS: DiffDetect
