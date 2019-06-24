@@ -1,0 +1,17 @@
+//var script = document.createElement('script'); 
+//script.src = "https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"; 
+//document.getElementsByTagName('head')[0].appendChild(script); 
+
+{!REQUIRESCRIPT('/resource/jquery')}  //调用系统 Static resource的静态jQuery文件
+
+$("th.dataCell>a").each(function(){ 
+var ahrf = $(this).attr("href"); 
+if (ahrf.indexOf("/a08")==0){ 
+var orginName = $(this).text(); 
+var customerName = $(this).parent().next().text(); 
+if (orginName != customerName) 
+{ 
+$(this).css("background-color","yellow"); 
+} 
+} 
+});
