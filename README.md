@@ -32,4 +32,4 @@
    + ii.功能：before insert & before update trigger
 13. **Js Button监测两个产品名称的值不一致**
    + i. 简述：点击Js Button触发对于related List中的两个值的比较
-   +ii. 功能：JS: DiffDetect
+   + ii. 功能：JS: DiffDetect
