@@ -1,0 +1,115 @@
+<!-- 
+@Author: NIC HE
+@Date:2019.07.01
+@Function:复制订单以及订单产品
+-->
+<apex:page tabStyle="Object__c" controller="deepCloneOrderCtrl" showHeader="true"  id="thePage">
+<c:StatusSpinne />
+     <script type="text/javascript">
+        function selectAllCheckboxes(obj,receivedInputID){
+            var inputCheckBox = document.getElementsByTagName("input");                  
+            for(var i=0; i<inputCheckBox.length; i++){          
+                if(inputCheckBox[i].id.indexOf(receivedInputID)!=-1){                                     
+                    inputCheckBox[i].checked = obj.checked;
+                }
+            }
+        }
+    </script>
+    <apex:form id="theForm">
+        
+    <apex:sectionHeader title="复制销售订单及产品"/>
+    <apex:pageMessages id="message" />
+        <apex:pageBlock id="block1">
+            
+            <apex:pageBlockButtons >
+                <span style="margin-left: 17%;" >
+                    <apex:commandButton value="确认复制" action="{!cloneRec}" reRender="orderList" style="margin-left: 20px;" status="LoadingStatusSpinner"/>
+                    <apex:commandButton value="返回" immediate="true" action="{!ReturnButton}" style="margin-left: 20px;"/>
+                </span>
+            </apex:pageBlockButtons>
+ 
+            <apex:pageBlockSection title="订单信息" columns="1" id="order">
+                 <apex:pageBlockTable value="{!orderList}" var="item" id="optlist">
+                    <apex:column headerValue="项目名称" width="8%">
+                        <apex:outputField id="ProjectName__c" value="{!item.ProjectName__c}" label="项目名称"/>
+                    </apex:column>
+                     
+                    <apex:column headerValue="购货单位" width="8%">
+                        <apex:outputField value="{!item.Purchasing__c}" label="购货单位"/>
+                    </apex:column>
+                     
+                    <apex:column headerValue="省份" width="2%">
+                        <apex:outputField value="{!item.citys__c}" label="省份"/>
+                    </apex:column>
+                     
+                    <apex:column headerValue="地市" width="2%">
+                        <apex:outputField value="{!item.City__c}" label="地市"/>
+                    </apex:column>
+                     
+                    <apex:column headerValue="行业" width="2%">
+                        <apex:outputField value="{!item.Industry__c}" label="行业"/>
+                    </apex:column>
+                     
+                     <apex:column headerValue="订单类型" width="2%">
+                        <apex:outputField value="{!item.OrderType__c}" label="订单类型"/>
+                    </apex:column>   
+                    <apex:column headerValue="销售" width="2%">
+                        <apex:outputField value="{!item.RSKD_Sale__c}" label="销售"/>
+                    </apex:column> 
+                </apex:pageBlockTable> 
+            </apex:pageBlockSection>
+            
+            <apex:pageBlockSection title="订单产品信息" columns="1" id="orderProduct">  
+               <!--<span><strong>客户订单型号：</strong></span>
+                <apex:repeat value="{!nameList}" var="p" id="theRepeat">
+                      <apex:outputText value="{!p}" id="theValue"/>    
+                </apex:repeat>
+              -->
+               
+              <!--
+                 <apex:column headerValue="产品名称" width="2%">
+                    <apex:dataList title="产品名称" value="{!orderProductList}" var="op" style="list-style:none;line-height:1.5em;">
+                        <apex:outputText value="{!op.BGProductRaisecom_Name__r.Name}"/>
+                    </apex:dataList>
+                  </apex:column>    
+  
+                <apex:dataList title="客户订单型号" value="{!orderProductList}" var="op" style="list-style:none;line-height:1.5em;">
+                    <apex:outputText value="{!op.Product_Remark__c}"/>
+                </apex:dataList>
+                
+                 <apex:dataList title="数量" value="{!orderProductList}" var="op" style="list-style:none;line-height:1.5em;">
+                     <apex:inputText value="{!op.Amount__c}"/> 
+                </apex:dataList>
+              -->
+                
+              
+                <apex:dataTable value="{!opiList}" var="opi" cellspacing="13px" style="width:80%;" > 
+                    <apex:column width="1%" >
+                        <apex:facet name="header">
+                            <apex:inputCheckbox onclick="selectAllCheckboxes(this,'inputId')"/>
+                        </apex:facet>
+                    	<apex:inputCheckbox value="{!opi.ifCheck}" id="inputId"/>
+                    </apex:column>
+                    <!--<apex:column headerValue="" width="1%">
+                        <apex:inputCheckbox value="{!opi.ifCheck}"/>
+                    </apex:column>-->
+                    <apex:column headerValue="产品名称" width="10%" >
+                         <apex:outputField value="{!opi.op.BGProductRaisecom_Name__c}" label="产品名称"/>
+                    </apex:column>  
+                    <apex:column headerValue="客户订单型号" width="10%">
+                         <apex:inputField value="{!opi.op.Product_Remark__c}" label="客户订单型号"/>
+                    </apex:column>
+                    <apex:column headerValue="数量" width="2%">
+                         <apex:inputField value="{!opi.op.Amount__c}" label="数量"/>
+                    </apex:column>
+                    <apex:column headerValue="销价单价" width="2%">
+                         <apex:outputField value="{!opi.op.Price__c}" label="销价单价"/>
+                    </apex:column>
+                </apex:dataTable>
+             
+               
+            </apex:pageBlockSection>
+            
+        </apex:pageBlock>
+    </apex:form>    
+</apex:page>
