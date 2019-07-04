@@ -1,0 +1,152 @@
+/*
+@Author: NIC HE
+@Date:2019.07.01
+@Function:复制订单以及订单产品
+*/
+@isTest
+private class deepCloneOrderCtrlTest {
+     public static RecordType rt = [select Id,Name from RecordType where DeveloperName='RecordType2' and SobjectType='Object__c'];   //销售订单：运营商直销订单
+     static testMethod void testMethod1() {
+         //插入客户
+        Account acc = new Account();
+    	acc.Name = '安徽电信股份有限公司';
+        acc.Province__c='安徽';
+        acc.Industry2__c='中国电信';
+    	insert acc;
+         
+        //插入产品
+        ProductRaisecom__c pro1 = new ProductRaisecom__c();
+        pro1.AuthorizedDealerOrice__c=500;
+        pro1.BGProductRaiseGuidePrice__c=400;
+        pro1.BGAuthorizedDealerOrice__c=300;
+        pro1.Material_Code__c='16.52.02.0018.10';
+        pro1.ProductRaisecomActive__c=true;
+        pro1.Name = 'ProductOne';
+        ProductRaisecom__c pro2 = new ProductRaisecom__c();
+        pro2.AuthorizedDealerOrice__c=700;
+        pro2.BGProductRaiseGuidePrice__c=600;
+        pro2.BGAuthorizedDealerOrice__c=500;
+        pro2.Material_Code__c='16.52.02.0018.11';
+        pro2.ProductRaisecomActive__c=true;
+        pro2.Name = 'ProductTwo';
+        ProductRaisecom__c pro3 = new ProductRaisecom__c();
+        pro3.AuthorizedDealerOrice__c=777;
+        pro3.BGProductRaiseGuidePrice__c=666;
+        pro3.BGAuthorizedDealerOrice__c=555;
+        pro3.Material_Code__c='16.52.02.0018.12';
+        pro3.ProductRaisecomActive__c=true;
+        pro3.Name = 'ProductThree';
+        ProductRaisecom__c pro4 = new ProductRaisecom__c();
+        pro4.AuthorizedDealerOrice__c=77;
+        pro4.BGProductRaiseGuidePrice__c=66;
+        pro4.BGAuthorizedDealerOrice__c=55;
+        pro4.Material_Code__c='16.52.02.0018.13';
+        pro4.ProductRaisecomActive__c=true;
+        pro4.Name = 'ProductFour';
+
+        List<ProductRaisecom__c> proList = new List<ProductRaisecom__c>();
+        proList.add(pro1);
+        proList.add(pro2);
+        proList.add(pro3);
+        proList.add(pro4);
+        insert proList;
+        
+         //插入备案价
+        FilingProducts__c f1 = new FilingProducts__c();
+        f1.ProductName__c = pro1.Id;
+        f1.AgreementProductActive__c = true;
+        f1.BGAccount__c = acc.Id;
+        f1.Province__c='安徽';
+        f1.Industry__c='中国电信';
+        f1.CollectMining__c='蓝色';
+        FilingProducts__c f2 = new FilingProducts__c();
+        f2.ProductName__c = pro2.Id;
+        f2.AgreementProductActive__c = true;
+        //f2.BGAccount__c = acc.Id;
+        f2.Province__c='安徽';
+        f2.Industry__c='中国电信';
+        f2.CollectMining__c='蓝色';
+        FilingProducts__c f3 = new FilingProducts__c();
+        f3.ProductName__c = pro3.Id;
+        f3.AgreementProductActive__c = true;
+        //f3.BGAccount__c = acc.Id;
+        //f3.Province__c='安徽';
+        f3.Industry__c='中国电信';
+        f3.CollectMining__c='蓝色';
+        FilingProducts__c f4 = new FilingProducts__c();
+        f4.ProductName__c = pro4.Id;
+        f4.AgreementProductActive__c = true;
+        f4.BGAccount__c = acc.Id;
+        f4.MaterialCode4__c='16.52.02.0018';
+        f4.Industry__c='中国电信';
+        f4.CollectMining__c='蓝色';
+        List<FilingProducts__c> fList= new List<FilingProducts__c>();
+        fList.add(f1); 
+        fList.add(f2);
+        fList.add(f3); 
+        fList.add(f4); 
+        insert fList;
+        
+        
+         //插入订单
+        Object__c o =new Object__c();
+        o.RecordTypeId=rt.Id;
+        o.Purchasing__c=acc.Id;
+        o.ProjectName__c='项目名称1';
+        o.Industry__c='中国电信';
+        o.citys__c='安徽';
+        o.City__c='合肥';
+        o.OrderType__c='框架式订单';
+        o.SalesType__c='01';
+        o.SealDept__c='商务部';
+        o.GoodsPickType__c='送货';
+        o.GoodsRecevice__c='签名';
+        o.ReturnOrderRequired1__c='01';
+        o.ReturnOrderRequired2__c='02';
+        o.ConsigneeName2__c='张三';
+        o.ConsigneeContactInformation2__c='12811221122';
+        o.DeliveryAddress__c='安徽省合肥市xx区xx街道';
+        insert o;
+        
+        //插入订单产品
+        BGOrderProduct__c op1=new BGOrderProduct__c();
+        op1.BGOrder__c=o.Id;
+        op1.BGProductRaisecom_Name__c=pro1.Id;
+        op1.Amount__c=20;
+        op1.Price__c=600;
+        op1.CollectMining__c='白日梦蓝';
+        BGOrderProduct__c op2=new BGOrderProduct__c();
+        op2.BGOrder__c=o.Id;
+        op2.BGProductRaisecom_Name__c=pro2.Id;
+        op2.Amount__c=10;
+        op2.Price__c=400;
+        op2.CollectMining__c='齐马蓝';
+        BGOrderProduct__c op3=new BGOrderProduct__c();
+        op3.BGOrder__c=o.Id;
+        op3.BGProductRaisecom_Name__c=pro3.Id;
+        op3.Amount__c=10;
+        op3.Price__c=400;
+        op3.CollectMining__c='梵高蓝';
+         
+        List<BGOrderProduct__c> opList = new List<BGOrderProduct__c>();
+        opList.add(op1);
+        opList.add(op2);
+        opList.add(op3);
+        insert opList;
+         
+        System.Test.startTest();
+        ApexPages.currentPage().getParameters().put('orderId',o.Id);
+        deepCloneOrderCtrl dco= new deepCloneOrderCtrl();
+        dco.orderList[0]=o;
+        dco.opiList[0].ifCheck=true;
+        dco.opiList[0].op= op1;
+        dco.opiList[1].ifCheck=true;
+        dco.opiList[1].op= op2;
+        dco.opiList[2].ifCheck=true;
+        dco.opiList[2].op= op3;
+        dco.cloneRec();
+        dco.ReturnButton();
+         
+        System.Test.stopTest();         
+     }
+}
