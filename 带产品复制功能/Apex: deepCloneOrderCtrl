@@ -1,0 +1,295 @@
+/*
+@Author: NIC HE
+@Date:2019.07.01
+@Function:复制订单以及订单产品
+*/
+public without sharing class deepCloneOrderCtrl
+{   
+    public Id orderId{get;set;}                //被复制的订单的ID
+    public Object__c o{get;set;}
+    public List<BGOrderProduct__c> ops {get;set;}
+    public List<Object__c> orderList {get;set;}
+    //public List<BGOrderProduct__c> orderProductList {get;set;}
+    public List<OrderProductItems> opiList {get;set;}
+    public Set<ID> productRaisecomIdSet {get;set;}
+    public Set<String> code4Set {get;set;}
+    
+    
+    public deepCloneOrderCtrl()
+    {
+        this.orderId =ApexPages.currentPage().getParameters().get('orderId');
+        this.orderList=new List<Object__c>();
+        //this.orderProductList=new List<BGOrderProduct__c>();
+        this.opiList=new List<OrderProductItems>();
+        this.productRaisecomIdSet=new Set<ID>();
+        this.code4Set= new Set<String>();
+        this.o = [SELECT 
+                         ID, 
+                         Name,                    
+                         RecordTypeId,
+                         Purchasing__c,            
+                         FrameworNumber__c,        
+                         ProjectName__c,           
+                         Industry__c,              
+                         citys__c,                 
+                         City__c,                  
+                         Province__c,              
+                         OrderType__c,             
+                         SalesType__c,             
+                         ReturnType__c,            
+                         SealDept__c,              
+                         TechnicalReview__c,       
+                         DiscountByOrder__c,        
+                         RSKD_Sale__c,             
+                         GoodsPickType__c,          
+                         GoodsRecevice__c,          
+                         //Remarks1__c,               
+                         Remarks2__c,               
+                         ReturnOrderRequired1__c,       
+                         ReturnOrderRequired2__c,        
+                         Manager__c,                     
+                         ConsigneeName2__c,                 
+                         ConsigneeContactInformation2__c,   
+                         DeliveryAddress__c                 
+                   FROM Object__c 
+                   WHERE Id = : orderId];
+        
+          this.ops = [SELECT Id, 
+                      		 BGOrder__c,      
+                             BGProductRaisecom_Name__c,                
+                             BGProductRaisecom_Name__r.Name,           
+                             BGProductRaisecom_Name__r.AuthorizedDealerOrice__c,  
+                             BGProductRaisecom_Name__r.BGProductRaiseGuidePrice__c,
+                             BGProductRaisecom_Name__r.BGAuthorizedDealerOrice__c,  
+                             BGProductRaisecom_Name__r.Material_Code__c,           
+                             BGProductRaisecom_Name__r.MaterialCode4__c,           
+                             Product_Remark__c,                
+                             ProductRaisecomSeries__c,                 
+                             ProductRaisecomLine__c,                  
+                             ProductVersion__c,                
+                             Amount__c,                
+                             IfControl__c,                
+                             Planningmode__c,                
+                             Reviewnumber__c,               
+                             Purchase_Price__c,                
+                             Price__c,                //销价单价
+                             CollectMining__c,                
+                             BOMCategoryNo__c,                //BOM类别
+                             ExpectedDeliveryDate__c                //建议交货日期
+                             //ApprovalLevel__c                //审批层级
+                             //BackupPrice__c                //备案价  
+                      FROM BGOrderProduct__c 
+                      WHERE BGOrder__c = : o.Id];
+            
+            orderList.add(o);
+            
+            for (BGOrderProduct__c temp : ops ){
+                opiList.add(new OrderProductItems(false,temp)); 
+                productRaisecomIdSet.add(temp.BGProductRaisecom_Name__c);
+                code4Set.add(temp.BGProductRaisecom_Name__r.Material_Code__c.left(13));
+            }
+               
+    }
+    
+    /**************************    确认复制按钮  ***********************************************************/
+    public Pagereference cloneRec()
+    {
+        List<BGOrderProduct__c> newops = new List<BGOrderProduct__c>(); 
+        Map<String, FilingProducts__c> typeAPriceMap1 = new Map<String, FilingProducts__c>();   // A1、  客户+产品名称（产品字段）+备案价（4级代码为空）
+        Map<String, FilingProducts__c> typeAPriceMap2 = new Map<String, FilingProducts__c>();   // A2、  客户+4级代码+备案价（产品为空）
+        Map<String, FilingProducts__c> typeBPriceMap = new Map<String, FilingProducts__c>();    // B、   行业+省份+产品名称（产品字段）+备案价（4级代码为空）
+        Map<String, FilingProducts__c> typeCPriceMap = new Map<String, FilingProducts__c>();    // C、   行业+产品名称（产品字段）+备案价（4级代码为空）
+        List<FilingProducts__c> fpList =new List<FilingProducts__c>();
+        
+        /*******************    开始封装备案价  以供一会儿报价产品的调用   ***********************************************************************/
+        Id accountId = o.Purchasing__c;   //备案判断客户---->购货单位
+        String province=o.Province__c;  //备案判断省份---->销售片区
+          fpList= [SELECT Id, 
+                          CreatedDate,
+                          AgreementProductActive__c,
+                          ProductName__c,  
+                          Price__c,
+                          BGAccount__c,
+                          Province__c,
+                          Industry__c,
+                          MaterialCode4__c,
+                          IFControlled__c,
+                          CollectMining__c,   
+                          End_date__c
+                   FROM FilingProducts__c 
+                   WHERE (
+                          ( BGAccount__c = :accountId
+                            AND (
+                                 (ProductName__c IN : productRaisecomIdSet AND MaterialCode4__c = null)
+                                  OR (MaterialCode4__c IN : code4Set AND ProductName__c = null)
+                                 )
+                            AND AgreementProductActive__c = true
+                          )
+                      OR ( 
+                            Province__c = :province
+                            AND Industry__c = :o.Industry__c
+                            AND BGAccount__c=null
+                            AND ProductName__c IN : productRaisecomIdSet
+                            AND MaterialCode4__c = null 
+                            AND AgreementProductActive__c = true
+                          )
+                      OR (
+                           Industry__c =: o.Industry__c
+                           AND BGAccount__c=null
+                           AND Province__c = null
+                           AND ProductName__c IN : productRaisecomIdSet
+                           AND MaterialCode4__c = null
+                           AND AgreementProductActive__c = true
+                         )
+                    )
+                    ORDER BY CreatedDate asc          //备案价带出时按时间顺序排列，然后旧的备案价会被下面新的备案价循环覆盖
+                                                                               //-->这样系统中最后被创建的那条符合条件的备案价格就会被带出来
+                ];
+        
+        for(FilingProducts__c fp :fpList){
+            if(fp.BGAccount__c == accountId && accountId!=null){
+                    if(fp.ProductName__c != null 
+                        && productRaisecomIdSet.contains(fp.ProductName__c) 
+                        && fp.MaterialCode4__c == null){
+                        String keyStr = fp.BGAccount__c + '' + fp.ProductName__c;
+                        typeAPriceMap1.put(keyStr, fp);
+                    }else if(fp.MaterialCode4__c != null 
+                        && code4Set.contains(fp.MaterialCode4__c) 
+                        && fp.ProductName__c == null){
+                        String keyStr = fp.BGAccount__c + '' + fp.MaterialCode4__c;
+                        typeAPriceMap2.put(keyStr, fp);
+                    }
+                }
+
+                // 类型B
+                if(fp.BGAccount__c == null && fp.Province__c == province &&  province!=null
+                    && fp.Industry__c == o.Industry__c
+                    && fp.ProductName__c != null 
+                    && productRaisecomIdSet.contains(fp.ProductName__c)
+                    && fp.MaterialCode4__c == null){
+                    String keyStr = fp.Province__c + '' + fp.Industry__c + '' + fp.ProductName__c;
+                    typeBPriceMap.put(keyStr, fp);
+                }
+
+                // 类型C
+                if(fp.BGAccount__c == null && fp.Province__c == null 
+                    && fp.Industry__c == o.Industry__c 
+                    && o.Industry__c !=null
+                    && fp.ProductName__c != null 
+                    && productRaisecomIdSet.contains(fp.ProductName__c)
+                    && fp.MaterialCode4__c == null){
+                    String keyStr = fp.Industry__c + '' + fp.ProductName__c;
+                    typeCPriceMap.put(keyStr, fp);
+                    //system.debug('类型C的Map--->>'+typeCPriceMap);
+                }
+        }
+ /*******************    结束封装备案价   *********************************************************************************/        
+             
+           Object__c oCopy =new Object__c();
+                 oCopy.RecordTypeId=o.RecordTypeId;
+                 oCopy.Purchasing__c=o.Purchasing__c;
+                 oCopy.FrameworNumber__c=o.FrameworNumber__c;
+                 oCopy.ProjectName__c=o.ProjectName__c;          
+                 oCopy.Industry__c=o.Industry__c;        
+                 oCopy.citys__c=o.citys__c;
+                 oCopy.City__c=o.City__c;
+                 oCopy.OrderType__c=o.OrderType__c;
+                 oCopy.SalesType__c=o.SalesType__c;
+        		 oCopy.ReturnType__c=o.ReturnType__c;
+                 oCopy.SealDept__c=o.SealDept__c;
+                 oCopy.TechnicalReview__c=o.TechnicalReview__c;
+                 oCopy.DiscountByOrder__c=o.DiscountByOrder__c;
+                 oCopy.RSKD_Sale__c=o.RSKD_Sale__c;
+                 oCopy.GoodsPickType__c=o.GoodsPickType__c;
+                 oCopy.GoodsRecevice__c=o.GoodsRecevice__c;
+                 oCopy.ReturnOrderRequired1__c=o.ReturnOrderRequired1__c;
+                 oCopy.ReturnOrderRequired2__c=o.ReturnOrderRequired2__c;
+                 oCopy.Manager__c=o.Manager__c;
+                 oCopy.Remarks2__c=o.Remarks2__c;
+                 oCopy.ConsigneeName2__c=o.ConsigneeName2__c;
+                 oCopy.ConsigneeContactInformation2__c=o.ConsigneeContactInformation2__c;
+                 oCopy.DeliveryAddress__c=o.DeliveryAddress__c;
+                 oCopy.yesClone__c=true; //标记是否复制而来
+                 oCopy.CopyFrom__c=o.Name;  //复制源
+                 oCopy.Audit_state__c='草稿';  //审批状态
+                 oCopy.SyncMessage__c='';//同步返回消息置空
+                 oCopy.SyncStatus__c='';//同步状态置空
+                 
+          insert oCopy;
+        
+        
+
+       // for(BGOrderProduct__c op : ops)
+          for(OrderProductItems opi: opiList){
+           if (opi.ifCheck){
+              BGOrderProduct__c opCopy = new BGOrderProduct__c(); 
+               opCopy.BGOrder__c=oCopy.Id;
+               opCopy.BGProductRaisecom_Name__c=opi.op.BGProductRaisecom_Name__c;
+               opCopy.Product_Remark__c=opi.op.Product_Remark__c;
+               opCopy.ProductRaisecomSeries__c=opi.op.ProductRaisecomSeries__c;
+               opCopy.ProductRaisecomLine__c=opi.op.ProductRaisecomLine__c;
+               opCopy.ProductVersion__c=opi.op.ProductVersion__c;
+               opCopy.Amount__c=opi.op.Amount__c;
+               opCopy.IfControl__c=opi.op.IfControl__c;
+               opCopy.Planningmode__c=opi.op.Planningmode__c;
+               opCopy.Reviewnumber__c=opi.op.Reviewnumber__c;
+               opCopy.Purchase_Price__c=opi.op.Purchase_Price__c;
+               opCopy.Price__c=opi.op.Price__c;
+               opCopy.BOMCategoryNo__c=opi.op.BOMCategoryNo__c;
+               opCopy.ExpectedDeliveryDate__c=opi.op.ExpectedDeliveryDate__c;
+               opCopy.ProductRaiseGuidePrice__c=opi.op.BGProductRaisecom_Name__r.BGProductRaiseGuidePrice__c;
+               opCopy.AuthorizedDealerOrice__c=opi.op.BGProductRaisecom_Name__r.AuthorizedDealerOrice__c;
+               opCopy.DirectorPrice__c=opi.op.BGProductRaisecom_Name__r.BGAuthorizedDealerOrice__c;
+               
+               //opCopy.CollectMining__c=op.CollectMining__c;  //待更新
+               //opCopy.BackupPrice__c=op.BackupPrice__c;//备案价格和销售策略 需要重新获取：如下：
+                        String keyA1 = accountId + '' + opi.op.BGProductRaisecom_Name__c;
+                        String keyA2 = accountId + '' + opi.op.BGProductRaisecom_Name__r.MaterialCode4__c;
+                        String keyB = province + '' + o.Industry__c + '' + opi.op.BGProductRaisecom_Name__c;
+                        String keyC = o.Industry__c + '' + opi.op.BGProductRaisecom_Name__c;
+                     if(typeAPriceMap1 != null && typeAPriceMap1.size() > 0 && typeAPriceMap1.get(keyA1) != null){
+               opCopy.BackupPrice__c = typeAPriceMap1.get(keyA1).Price__c;
+               opCopy.CollectMining__c = typeAPriceMap1.get(keyA1).CollectMining__c;    
+                     }else if(typeAPriceMap2 != null && typeAPriceMap2.size() > 0 && typeAPriceMap2.get(keyA2) != null){
+               opCopy.BackupPrice__c = typeAPriceMap2.get(keyA2).Price__c;
+               opCopy.CollectMining__c = typeAPriceMap2.get(keyA2).CollectMining__c;   
+                     }else if(typeBPriceMap != null && typeBPriceMap.size() > 0 && typeBPriceMap.get(keyB) != null){
+               opCopy.BackupPrice__c = typeBPriceMap.get(keyB).Price__c;
+               opCopy.CollectMining__c = typeBPriceMap.get(keyB).CollectMining__c;    
+               //qpCopy.IfControl__c = typeBPriceMap.get(keyB).IFControlled__c;
+                     }else if(typeCPriceMap != null && typeCPriceMap.size() > 0 && typeCPriceMap.get(keyC) != null){
+               opCopy.BackupPrice__c = typeCPriceMap.get(keyC).Price__c;
+               opCopy.CollectMining__c = typeCPriceMap.get(keyC).CollectMining__c;   
+               //qpCopy.IfControl__c = typeCPriceMap.get(keyC).IFControlled__c;     
+                     }else{
+               opCopy.BackupPrice__c = 0;
+                     }
+            
+             //opCopy.ApprovalLevel__c=op.ApprovalLevel__c;  //审批层级需要重新获取：如下： 
+               opCopy.ApprovalLevel__c = ApprovalLevelCheck.checkOrder(opCopy, this.o.DiscountByOrder__c);
+             
+           newops.add(opCopy);
+          }
+        }
+        insert newops;  
+        // return new Pagereference('/a0p/o');//返回销售订单页面
+        return new Pagereference('/'+oCopy.Id);//返回新的订单页面
+    }
+    
+    //返回按钮 
+     public Pagereference ReturnButton(){
+        return new Pagereference('/'+this.orderId);
+    }
+    
+    //自定义封装类
+     public class OrderProductItems {
+        public Boolean ifCheck{get;set;}  
+        public BGOrderProduct__c op {get;set;}
+
+        public OrderProductItems (Boolean ifCheck,BGOrderProduct__c op) {
+            this.ifCheck=ifCheck;
+            this.op = op;
+        }
+    }
+    
+}
