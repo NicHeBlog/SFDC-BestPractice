@@ -1,0 +1,11 @@
+{!REQUIRESCRIPT("/soap/ajax/42.0/connection.js")} 
+{!REQUIRESCRIPT("/soap/ajax/42.0/apex.js")} 
+if('{!BGQuote__c.IsQuoteActive__c}'=="未启用" || '{!BGQuote__c.IsQuoteActive__c}'==""){ 
+var result = sforce.apex.execute("EnableButton","enableButtonBG",{customId:'{!BGQuote__c.Id}',accId:'{!BGQuote__c.AccountNameId__c}'}); 
+if(result=='errors'){ 
+alert('审批未通过'); 
+} 
+window.location.reload(); 
+}else{ 
+alert("此报价已经启用！"); 
+}
