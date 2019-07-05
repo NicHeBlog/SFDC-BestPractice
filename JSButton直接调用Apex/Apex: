@@ -1,0 +1,70 @@
+/**
+ * Author:Autumn
+ * CreatedDate:2017-1-5
+ * Description:启用
+ */
+global class EnableButton {
+    webservice static String enableButton(Id customId)
+    {	
+    	//查询当前报价更改其报价状态
+    	List<Quote__c> customList=[select Id,Audit_state__c,Opportunity__c,Field1__c from Quote__c where Id = : customId];
+        List<Quote__c> qteList = new List<Quote__c>();
+        Set<Id>  cuId = new Set<Id>();	
+        for(Quote__c cu : customList)
+        {
+            if(cu.Audit_state__c== '审批通过')
+            {
+                cuId.add(cu.Opportunity__c); 
+                cu.Field1__c= '启用';
+                qteList.add(cu);
+            }else if(cu.Audit_state__c!= '审批通过')
+            {
+                String file='errors';
+                return file;
+                    }
+            }
+            update qteList;
+       
+    	//更改其他的报价
+    	List<Quote__c> qte2List=[select Field1__c 
+    									from Quote__c 
+    							where Opportunity__c in : cuId and Id != : customId and Audit_state__c = : '审批通过'];
+        if(qte2List!=null)
+        {	
+            List<Quote__c> qte3List = new List<Quote__c>();
+        	for(Quote__c qte : qte2List)
+        	{
+        		qte.Field1__c= '未启用';
+        		qte3List.add(qte);
+        	}
+        	update qte3List;
+        }    
+    	return null;
+    }
+
+     webservice static String enableButtonBG(Id customId,Id accId)
+    {   
+        //查询当前报价更改其报价状态
+        List<BGQuote__c> customList=[select Id,Active__c,Audit_state__c,Opportunity__c,IsQuoteActive__c from BGQuote__c where Id = : customId];
+        List<BGQuote__c> qteList = new List<BGQuote__c>();
+        Set<Id>  cuId = new Set<Id>();  
+        for(BGQuote__c cu : customList)
+        {
+            if(cu.Audit_state__c== '审批通过')
+            {
+                cuId.add(cu.Opportunity__c); 
+                cu.IsQuoteActive__c= '启用';
+                cu.Active__c = 'true';
+                qteList.add(cu);
+            }else if(cu.Audit_state__c!= '审批通过')
+            {
+                String file='errors';
+                return file;
+                    }
+            }
+            update qteList;
+    
+            return null;
+        }
+
+}
