@@ -1,0 +1,11 @@
+{!REQUIRESCRIPT("/soap/ajax/45.0/connection.js")} 
+{!REQUIRESCRIPT("/soap/ajax/45.0/apex.js")} 
+
+var result = sforce.apex.execute("enableOrder","enableOrder",{oId:'{!Object__c.Id}'}); 
+if(result=='enabled'){ 
+alert('该订单已经被启用'); 
+}else if (result == 'success'){ 
+window.location.reload(); 
+}else{ 
+alert('订单下无产品不可启用！'); 
+}
