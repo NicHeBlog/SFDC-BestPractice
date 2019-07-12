@@ -1,0 +1,32 @@
+/*
+   @Author：Nic HE
+   @Date：2019.07.11
+   @Function: 驻地商务启用按钮
+*/
+
+global class enableOrder {
+	WebService static String enableOrder(Id oId)
+	{ 
+		try {
+		    Object__c o = [Select Id,TotalAmount__c,Part_Sign_Date__c,PartB_Sign_Date__c,OrderActive__c,Audit_state__c From Object__c Where Id =: oId];
+            if(o.OrderActive__c ==FALSE){
+                if ( o.TotalAmount__c >0){
+                    o.Part_Sign_Date__c=Date.today();
+                    o.PartB_Sign_Date__c=Date.today();
+                    o.OrderActive__c=TRUE;
+                    o.Audit_state__c='审批通过';               
+				    update o;
+				    return 'success';
+                }else {
+                    return 'fail';
+                }
+            }else {
+                return 'enabled';
+            }
+        }
+		catch (Exception e) {
+		    return 'fail';
+		}
+
+	}
+}
