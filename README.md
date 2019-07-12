@@ -38,5 +38,6 @@
    + ii. 功能：可以有选择的复制相关列表下的记录
 15. **JSButton直接调用Apex** 
   + i. 简述：通过Js Button可以直接调用后台Apex类
+  + ii. 功能: 通过webservice方法，根据不同的返回值，更新页面
   
   
