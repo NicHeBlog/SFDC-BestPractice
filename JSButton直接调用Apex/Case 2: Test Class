@@ -1,0 +1,235 @@
+/*
+   @Author：Nic HE
+   @Date：2019.07.12
+   @Function: 驻地商务启用按钮
+*/
+@isTest
+private class enableOrder_Test {
+    public static RecordType rt = [select Id,Name from RecordType where DeveloperName='Normal_BG' and SobjectType='BGQuote__c'];   //报价：常规采购
+    public static RecordType rt2 = [select Id,Name from RecordType where DeveloperName='RecordType4' and SobjectType='Object__c'];   //销售订单：非运营商直销订单
+    
+    // Case enabled 
+    /* static testMethod void testMethod1() {
+        //插入客户
+        Account acc = new Account();
+    	acc.Name = '安徽电信股份有限公司';
+        acc.Province__c='安徽';
+        acc.Industry2__c='中国电信';
+    	insert acc;
+        //插入报价
+    	BGQuote__c b = new BGQuote__c();
+    	b.Name='test';
+        b.RecordTypeId=rt.Id;
+        b.Field5__c='test';
+        b.AccountName__c=acc.Id;
+        b.Closingunit__c=acc.Id;
+        b.Distributor__c=acc.Id;
+        b.Project_Province__c='安徽';
+        b.Date__c=Date.today();
+        b.Industry__c='中国电信';
+        b.BG_Industry_2__c='中国电信';
+        b.Remark_whether_Emergence__c='否';
+        b.shipment_remark__c='无';
+        b.Expect_Date__c=Date.today();
+        insert b;
+        
+        //插入订单
+        Object__c o =new Object__c();
+        o.BGQuote__c=b.Id;
+        o.RecordTypeId=rt2.Id;
+        o.Purchasing__c=acc.Id;
+        o.ProjectName__c='项目名称1';
+        o.Industry__c='中国电信';
+        o.citys__c='安徽';
+        o.City__c='合肥';
+        o.OrderType__c='框架式订单';
+        o.SalesType__c='01';
+        o.SealDept__c='商务部';
+        o.GoodsPickType__c='送货';
+        o.GoodsRecevice__c='签名';
+        o.ReturnOrderRequired1__c='01';
+        o.ReturnOrderRequired2__c='02';
+        o.ConsigneeName2__c='张三';
+        o.ConsigneeContactInformation2__c='12811221122';
+        o.DeliveryAddress__c='安徽省合肥市xx区xx街道';
+        o.OrderActive__c=TRUE;
+        insert o;
+        
+        //插入瑞斯产品
+        ProductRaisecom__c pro1 = new ProductRaisecom__c();
+        pro1.AuthorizedDealerOrice__c=500;
+        pro1.BGProductRaiseGuidePrice__c=400;
+        pro1.BGAuthorizedDealerOrice__c=300;
+        pro1.Material_Code__c='16.52.02.0018.10';
+        pro1.ProductRaisecomActive__c=true;
+        pro1.Name = 'ProductOne';
+        insert pro1;
+        
+        //插入报价产品
+        //BGQuoteProduct__c bp1=new BGQuoteProduct__c();
+        //bp1.BGQuoteProjectName__c=b.Id;
+        //bp1.BGProductRaisecom_Name__c=pro1.Id;
+        //bp1.Amount__c=23;
+        //bp1.Price__c=600;
+        
+        //插入订单产品
+        BGOrderProduct__c op1=new BGOrderProduct__c();
+        op1.BGOrder__c=o.Id;
+        op1.BGProductRaisecom_Name__c=pro1.Id;
+        op1.Amount__c=10;
+        op1.Price__c=600;
+        op1.CollectMining__c='白日梦蓝'; 
+        insert op1;
+        
+        
+        Test.startTest();
+        String result1=enableOrder.enableOrder(o.Id);
+        System.assertEquals('enabled', result1);
+        Test.stopTest();
+    }  */
+    
+    //Case success 
+    static testMethod void testMethod2() {
+        //插入客户
+        Account acc = new Account();
+    	acc.Name = '安徽电信股份有限公司';
+        acc.Province__c='安徽';
+        acc.Industry2__c='中国电信';
+    	insert acc;
+        //插入报价
+    	BGQuote__c b = new BGQuote__c();
+    	b.Name='test';
+        b.RecordTypeId=rt.Id;
+        b.Field5__c='test';
+        b.AccountName__c=acc.Id;
+        b.Closingunit__c=acc.Id;
+        b.Distributor__c=acc.Id;
+        b.Project_Province__c='安徽';
+        b.Date__c=Date.today();
+        b.Industry__c='中国电信';
+        b.BG_Industry_2__c='中国电信';
+        b.Remark_whether_Emergence__c='否';
+        b.shipment_remark__c='无';
+        b.Expect_Date__c=Date.today();
+        insert b;
+        
+        Object__c o =new Object__c();
+        o.BGQuote__c=b.Id;
+        o.RecordTypeId=rt2.Id;
+        o.Purchasing__c=acc.Id;
+        o.ProjectName__c='项目名称1';
+        o.Industry__c='中国电信';
+        o.citys__c='安徽';
+        o.City__c='合肥';
+        o.OrderType__c='框架式订单';
+        o.SalesType__c='01';
+        o.SealDept__c='商务部';
+        o.GoodsPickType__c='送货';
+        o.GoodsRecevice__c='签名';
+        o.ReturnOrderRequired1__c='01';
+        o.ReturnOrderRequired2__c='02';
+        o.ConsigneeName2__c='张三';
+        o.ConsigneeContactInformation2__c='12811221122';
+        o.DeliveryAddress__c='安徽省合肥市xx区xx街道';
+        o.OrderActive__c=FALSE;
+        insert o;
+        
+        //插入瑞斯产品
+        ProductRaisecom__c pro1 = new ProductRaisecom__c();
+        pro1.AuthorizedDealerOrice__c=500;
+        pro1.BGProductRaiseGuidePrice__c=400;
+        pro1.BGAuthorizedDealerOrice__c=300;
+        pro1.Material_Code__c='16.52.02.0018.10';
+        pro1.ProductRaisecomActive__c=true;
+        pro1.Name = 'ProductOne';
+        insert pro1;
+        
+        //插入订单产品
+        BGOrderProduct__c op1=new BGOrderProduct__c();
+        op1.BGOrder__c=o.Id;
+        op1.BGProductRaisecom_Name__c=pro1.Id;
+        op1.Amount__c=10;
+        op1.Price__c=600;
+        op1.CollectMining__c='白日梦蓝';
+        insert op1;
+        
+        Test.startTest();
+        String result2=enableOrder.enableOrder(o.Id);
+        System.assertEquals('success', result2);
+        Test.stopTest();
+    }
+      
+    //Case fail 
+    static testMethod void testMethod3() {
+        //插入客户
+        Account acc = new Account();
+    	acc.Name = '安徽电信股份有限公司';
+        acc.Province__c='安徽';
+        acc.Industry2__c='中国电信';
+    	insert acc;
+        //插入报价
+    	BGQuote__c b = new BGQuote__c();
+    	b.Name='test';
+        b.RecordTypeId=rt.Id;
+        b.Field5__c='test';
+        b.AccountName__c=acc.Id;
+        b.Closingunit__c=acc.Id;
+        b.Distributor__c=acc.Id;
+        b.Project_Province__c='安徽';
+        b.Date__c=Date.today();
+        b.Industry__c='中国电信';
+        b.BG_Industry_2__c='中国电信';
+        b.Remark_whether_Emergence__c='否';
+        b.shipment_remark__c='无';
+        b.Expect_Date__c=Date.today();
+        insert b;
+        
+        Object__c o =new Object__c();
+        o.BGQuote__c=b.Id;
+        o.RecordTypeId=rt2.Id;
+        o.Purchasing__c=acc.Id;
+        o.ProjectName__c='项目名称1';
+        o.Industry__c='中国电信';
+        o.citys__c='安徽';
+        o.City__c='合肥';
+        o.OrderType__c='框架式订单';
+        o.SalesType__c='01';
+        o.SealDept__c='商务部';
+        o.GoodsPickType__c='送货';
+        o.GoodsRecevice__c='签名';
+        o.ReturnOrderRequired1__c='01';
+        o.ReturnOrderRequired2__c='02';
+        o.ConsigneeName2__c='张三';
+        o.ConsigneeContactInformation2__c='12811221122';
+        o.DeliveryAddress__c='安徽省合肥市xx区xx街道';
+        o.OrderActive__c=FALSE;
+        insert o;
+        
+        //插入瑞斯产品
+        ProductRaisecom__c pro1 = new ProductRaisecom__c();
+        pro1.AuthorizedDealerOrice__c=500;
+        pro1.BGProductRaiseGuidePrice__c=400;
+        pro1.BGAuthorizedDealerOrice__c=300;
+        pro1.Material_Code__c='16.52.02.0018.10';
+        pro1.ProductRaisecomActive__c=true;
+        pro1.Name = 'ProductOne';
+        insert pro1;
+        
+        //插入订单产品
+        BGOrderProduct__c op1=new BGOrderProduct__c();
+        op1.BGOrder__c=o.Id;
+        op1.BGProductRaisecom_Name__c=pro1.Id;
+        op1.Amount__c=0;
+        op1.Price__c=600;
+        op1.CollectMining__c='白日梦蓝';   
+        insert op1;
+        
+        Test.startTest();
+        String result3=enableOrder.enableOrder(o.Id);
+        System.assertEquals('fail', result3);
+        Test.stopTest();
+    }
+    
+    
+
+}
