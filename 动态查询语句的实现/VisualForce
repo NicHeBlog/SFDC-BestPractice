@@ -1,0 +1,8 @@
+<!--页面中添加了下拉选项，选定的值传给给 proLine变量-->
+
+<apex:selectList id="proLine" value="{!proLine}" size="1">
+          <apex:selectOption itemValue="全部" itemLabel="全部"/>
+          <apex:selectOption itemValue="宽带网络" itemLabel="宽带网络"/>
+          <apex:selectOption itemValue="云业务平台" itemLabel="云业务平台"/>
+</apex:selectList>
+
