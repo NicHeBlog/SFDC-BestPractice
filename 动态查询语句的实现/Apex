@@ -1,0 +1,43 @@
+   /*
+     值得注意的是： 
+             1. like 逻辑是先做变量的  InputBatch='%'+InputBatch+'%';
+             2. =: 类型的也是直接写在string中
+             3. 最后根据条件来合成  需要 Database.query 的语句
+
+   */
+                   
+            //apex 开头声明一下变量  
+             public String InputBatch{get;set;}
+             public String proLine{get;set;} 
+             ...
+             ...
+             ...
+             ...
+             
+                   
+                   InputBatch='%'+InputBatch+'%';
+                    String queryStr;
+                    String queryMain='Select ProductRaisecomActive__c,Name,ProductRaisecomSeries__c,BGProductRaiseGuidePrice__c,'
+                                             + 'BGAuthorizedDealerOrice__c,AuthorizedDealerOrice__c,ProductRaisecomLine__c,ProductRaiseGuidePrice__c,'
+                                             + 'ProductRaisecomModel__c, ProductRaisecomDirectorGuidePrice__c,ProductRaisecomRegionMgrGudiePrice__c,'
+                                             + 'TheProductStatus__c,MaterialCode4__c,remarks__c,Material_Code__c,StockNumber__c'
+                                  + ' From ProductRaisecom__c'
+                                  + ' Where ((Name like :InputBatch And ProductRaisecomActive__c=true) '
+                                              + 'OR (Material_Code__c like :InputBatch And ProductRaisecomActive__c=true)'
+                                              + 'OR (MaterialCode4__c like :InputBatch And ProductRaisecomActive__c=true)'
+                                          +')'; 
+                    String queryCondition1 = ' ';
+                    String queryCondition2 = ' ';
+                    String queryLimit = '  Limit 200';
+                       if (proLine!='全部'){
+                         queryCondition1 = ' AND ProductRaisecomLine__c =: proLine';
+                       }
+                       if(proSeries!='全部'){
+                         queryCondition2 = ' AND ProductRaisecomSeries__c =: proSeries';
+                       } 
+                         queryStr =  queryMain + queryCondition1 + queryCondition2 + queryLimit ;
+                         system.debug('>>>>>>>>queryStr:  '+queryStr);
+                
+                    List<ProductRaisecom__c> PRList = Database.query(queryStr); 
+
+                        
