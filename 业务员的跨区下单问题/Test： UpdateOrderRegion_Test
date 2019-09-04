@@ -1,8 +1,24 @@
 @isTest
 private class UpdateOrderRegion_Test {
     @isTest static void testMethod1_noupdate() {
+         String recordType1 = Schema.SObjectType.BGQuote__c.getRecordTypeInfosByDeveloperName().get('BG_Feference_Amount').getRecordTypeId();
+         String RtId = Schema.SObjectType.Object__c.getRecordTypeInfosByName().get('非运营商直销订单').getRecordTypeId(); 
         
-         String RtId = Schema.SObjectType.Object__c.getRecordTypeInfosByName().get('非运营商直销订单').getRecordTypeId();  
+         Account acc = new Account();
+    	 acc.Name = 'TEST';
+    	 insert acc;
+        
+         BGQuote__c bgq = new BGQuote__c();
+         bgq.RecordTypeId = recordType1;
+         bgq.AccountName__c = acc.Id;
+         bgq.Industry__c = '中国电信';
+         bgq.BG_Industry_2__c = '中国电信';
+         bgq.Audit_state__c = '审批通过';
+         bgq.Start__c=Date.newInstance(2019, 4, 17);
+         bgq.End__c=Date.newInstance(2019, 5, 17);
+         bgq.Date__c=Date.newInstance(2019, 4, 17);
+         insert bgq;
+        
          Object__c bg = new Object__c();
          bg.RC_Order_No__c = 'tester_1';
          bg.ConsigneeContactInformation2__c='12212';
@@ -11,6 +27,7 @@ private class UpdateOrderRegion_Test {
          bg.SealDept__c='testdepart';
          bg.OrderType__c='框架式订单';
          bg.RecordTypeId=RtId;
+         bg.BGQuote__c=bgq.Id;
          //bg.RecordTypeId='0120I000001DlOUQA0';
                       
          insert bg;
