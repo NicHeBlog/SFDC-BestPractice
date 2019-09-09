@@ -1,4 +1,7 @@
 <apex:page renderas="pdf" controller="QuotationPDFColl">
+<!--可以生成excel表格的样式-->
+<!--<apex:page controller="QuotationPDFColl" contentType="application/vnd.ms-excel#NicTest.xls" cache="true">-->
+
 <html>
 <head>
 <title>瑞斯康达科技发展股份有限公司报价单</title>
