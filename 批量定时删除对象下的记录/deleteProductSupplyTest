@@ -1,0 +1,22 @@
+@isTest
+private class deleteProductSupplyTest {
+    public static String CRON_EXP = '0 0 10 * * ? *';
+    @testSetup 
+    static void setup() {
+        List<ProductSupply__c> psList = new List<ProductSupply__c>();
+        // insert 10 ProductSupply__c
+        for (Integer i=0;i<10;i++) {
+            psList.add(new ProductSupply__c(DeliveryCycle__c='见单1~6个工作日 '+i, 
+                productCategories__c='光模块'));
+        }
+        insert psList;
+    }
+        
+     static testmethod void test() {        
+        Test.startTest();
+        deleteProductSupply dps = new deleteProductSupply();
+        Id batchId = Database.executeBatch(dps);
+        String jobId = System.schedule('test',CRON_EXP,dps);  
+        Test.stopTest();
+    }
+}
