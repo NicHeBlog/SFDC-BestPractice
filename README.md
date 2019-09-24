@@ -39,5 +39,8 @@
 15. **JSButton直接调用Apex** 
   + i. 简述：通过Js Button可以直接调用后台Apex类
   + ii. 功能: 通过webservice方法，根据不同的返回值，更新页面
+16. **批量定时删除对象下的记录**
+  + i. 简述：调用Batchable 和Schedulable接口
+  + ii. 功能:  批量，定时删除
   
   
