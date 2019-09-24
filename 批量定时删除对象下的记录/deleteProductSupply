@@ -1,0 +1,20 @@
+global class deleteProductSupply implements Database.Batchable<sObject>,Schedulable{    
+
+    public Database.QueryLocator start(Database.BatchableContext context)
+    {
+        return Database.getQueryLocator('Select ID from ProductSupply__c');
+    }
+
+    public void execute(Database.BatchableContext context, List<ProductSupply__c> records)
+    {
+        delete records;
+    }
+
+    global void execute(SchedulableContext ctx) 
+    {
+        Database.executeBatch(new deleteProductSupply());
+    }
+    
+     global void finish(Database.BatchableContext BC){
+    }
+}
