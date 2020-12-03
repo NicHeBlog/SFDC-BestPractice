@@ -1,0 +1,58 @@
+public class UpdateOpportunityCloseDate implements Database.Batchable<sObject>, Database.Stateful {
+	private final static Logger LOGGER = new Logger(UpdateOpportunityCloseDate.class.getName());
+	public final static DateTime OPP_BEGIN_DATE = Opp_Begin_Date__c.getValues('StartDate').beginDate__c;//DateTime.newInstance(2020, 1, 1, 0, 0, 0);
+	public final static DateTime OPP_END_DATE = Opp_Begin_Date__c.getValues('EndDate').beginDate__c;
+
+    public Database.QueryLocator start(Database.BatchableContext bc) {
+        return Database.getQueryLocator(
+            'SELECT Id, CreatedDate, OpportunityId, Field, NewValue ' +
+            'FROM OpportunityFieldHistory ' +
+            'WHERE Field = \'StageName\' ORDER BY CreatedDate DESC'
+        );
+    }
+
+    public void execute(Database.BatchableContext bc, List<OpportunityFieldHistory> oppHisList){
+    	Map<Id,Date> mapOppIdAndCreatedDate = new Map<Id,Date>();
+		Set<Id> oppIdList = new Set<Id>();
+
+		for (OpportunityFieldHistory oppHis : oppHisList){
+			if (oppHis.NewValue == 'Closed Won' || oppHis.NewValue == 'Closed Lost'){
+				mapOppIdAndCreatedDate.put(oppHis.OpportunityId,oppHis.CreatedDate.date());   
+			    oppIdList.add(oppHis.OpportunityId);
+			}
+		}
+		
+		String query = 'SELECT Id, CloseDate ' + 
+					   'FROM Opportunity ' + 
+					   'WHERE RecordTypeId = \'012500000005IfYAAU\' AND Id IN :oppIdList AND CreatedDate > :OPP_BEGIN_DATE';
+	    if (OPP_END_DATE != null){
+               query += ' AND CreatedDate < :OPP_END_DATE';
+		}
+		List<Opportunity> oppList = Database.query(query);
+        List<Opportunity> finnalOppList = new List<Opportunity>();
+		if (!oppList.isEmpty()){
+			for (Opportunity opp : oppList){
+				if(opp.CloseDate != mapOppIdAndCreatedDate.get(opp.Id)){
+					opp.CloseDate = mapOppIdAndCreatedDate.get(opp.Id); 
+					Logger.info('updated opportunity CloseDate field, opprtunity Id : ' + opp.Id );
+					finnalOppList.add(opp);
+				}
+			}
+		}
+        
+        Database.SaveResult[] srList = Database.update(finnalOppList, false);
+		for (Database.SaveResult sr : srList) {
+		    if (!sr.isSuccess()) {              
+		        for(Database.Error err : sr.getErrors()) {
+		            Logger.info('The following error has occurred.');                    
+		            Logger.info(err.getStatusCode() + ': ' + err.getMessage());
+		            Logger.info('Fields that affected this error: ' + err.getFields());
+		        }
+		    }
+		}
+    }
+
+    public void finish(Database.BatchableContext bc){
+
+    }
+}
