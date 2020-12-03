@@ -1,0 +1,54 @@
+@isTest
+private class UpdateOpportunityCloseDateTest {
+    @isTest static void testFromStartdateToEnddate() {
+        Opp_Begin_Date__c  oppStartDate = new Opp_Begin_Date__c();
+        oppStartDate.Name = 'StartDate';
+        oppStartDate.beginDate__c  = DateTime.newInstance(2020, 1, 1, 0, 0, 0);
+        insert oppStartDate;
+        Opp_Begin_Date__c  oppEndDate = new Opp_Begin_Date__c();
+        oppEndDate.Name = 'EndDate';
+        oppEndDate.beginDate__c  = DateTime.newInstance(2020, 3, 1, 0, 0, 0);
+        insert oppEndDate;
+        
+        TWPSA_TestFixture_Default testFixture = new TWPSA_TestFixture_Default();
+        Opportunity opp = testFixture.prepareOpportunity(true);
+        opp.StageName='Closed Lost';
+        opp.RecordTypeId = '012500000005IfYAAU';
+        opp.Dead_because__c = 'No time'; 
+        update opp;
+        
+        Test.startTest();
+         
+        OpportunityFieldHistory oppHis = new OpportunityFieldHistory(OpportunityId = opp.id, Field = 'StageName'); 
+        insert oppHis; 
+        UpdateOpportunityCloseDate uocd = new UpdateOpportunityCloseDate();
+        DataBase.executeBatch(uocd);
+        Test.stopTest();
+    }
+
+    @isTest static void testOnlyStartdate() {
+        Opp_Begin_Date__c  oppStartDate = new Opp_Begin_Date__c();
+        oppStartDate.Name = 'StartDate';
+        oppStartDate.beginDate__c  = DateTime.newInstance(2020, 1, 1, 0, 0, 0);
+        insert oppStartDate;
+        Opp_Begin_Date__c  oppEndDate = new Opp_Begin_Date__c();
+        oppEndDate.Name = 'EndDate';
+        oppEndDate.beginDate__c  = null;
+        insert oppEndDate;
+        
+        TWPSA_TestFixture_Default testFixture = new TWPSA_TestFixture_Default();
+        Opportunity opp = testFixture.prepareOpportunity(true);
+        opp.StageName='Closed Lost';
+        opp.RecordTypeId = '012500000005IfYAAU';
+        opp.Dead_because__c = 'No time'; 
+        update opp;
+        
+        Test.startTest();
+         
+        OpportunityFieldHistory oppHis = new OpportunityFieldHistory(OpportunityId = opp.id, Field = 'StageName'); 
+        insert oppHis; 
+        UpdateOpportunityCloseDate uocd = new UpdateOpportunityCloseDate();
+        DataBase.executeBatch(uocd);
+        Test.stopTest();
+    }
+}
