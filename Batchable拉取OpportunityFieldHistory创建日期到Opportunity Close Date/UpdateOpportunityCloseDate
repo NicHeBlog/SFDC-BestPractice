@@ -2,6 +2,7 @@ public class UpdateOpportunityCloseDate implements Database.Batchable<sObject>, 
 	private final static Logger LOGGER = new Logger(UpdateOpportunityCloseDate.class.getName());
 	public final static DateTime OPP_BEGIN_DATE = Opp_Begin_Date__c.getValues('StartDate').beginDate__c;//DateTime.newInstance(2020, 1, 1, 0, 0, 0);
 	public final static DateTime OPP_END_DATE = Opp_Begin_Date__c.getValues('EndDate').beginDate__c;
+	public Set<Id> oppIdCheckListAcrossBatch = new Set<Id>();
 
     public Database.QueryLocator start(Database.BatchableContext bc) {
         return Database.getQueryLocator(
@@ -16,9 +17,12 @@ public class UpdateOpportunityCloseDate implements Database.Batchable<sObject>, 
 		Set<Id> oppIdList = new Set<Id>();
 
 		for (OpportunityFieldHistory oppHis : oppHisList){
-			if (oppHis.NewValue == 'Closed Won' || oppHis.NewValue == 'Closed Lost'){
-				mapOppIdAndCreatedDate.put(oppHis.OpportunityId,oppHis.CreatedDate.date());   
-			    oppIdList.add(oppHis.OpportunityId);
+			if (!oppIdCheckListAcrossBatch.contains(oppHis.OpportunityId) && (oppHis.NewValue == 'Closed Won' || oppHis.NewValue == 'Closed Lost')){
+				if(!mapOppIdAndCreatedDate.keySet().contains(oppHis.OpportunityId)){
+					mapOppIdAndCreatedDate.put(oppHis.OpportunityId,oppHis.CreatedDate.date()); 
+				} 
+				oppIdList.add(oppHis.OpportunityId);
+				oppIdCheckListAcrossBatch.add(oppHis.OpportunityId);
 			}
 		}
 		
@@ -34,21 +38,23 @@ public class UpdateOpportunityCloseDate implements Database.Batchable<sObject>, 
 			for (Opportunity opp : oppList){
 				if(opp.CloseDate != mapOppIdAndCreatedDate.get(opp.Id)){
 					opp.CloseDate = mapOppIdAndCreatedDate.get(opp.Id); 
-					Logger.info('updated opportunity CloseDate field, opprtunity Id : ' + opp.Id );
+					Logger.info('opprtunity added to update , Id : ' + opp.Id );
 					finnalOppList.add(opp);
 				}
 			}
 		}
         
-        Database.SaveResult[] srList = Database.update(finnalOppList, false);
+		Database.SaveResult[] srList = Database.update(finnalOppList, false);
+		Integer indexError=0;
 		for (Database.SaveResult sr : srList) {
-		    if (!sr.isSuccess()) {              
+            if (sr.isSuccess()) {
+                Logger.info('Succeed opprtunity Id :' + finnalOppList.get(indexError).Id); 
+            }else {              
 		        for(Database.Error err : sr.getErrors()) {
-		            Logger.info('The following error has occurred.');                    
-		            Logger.info(err.getStatusCode() + ': ' + err.getMessage());
-		            Logger.info('Fields that affected this error: ' + err.getFields());
+		            Logger.info('Error opprtunity Id :' + finnalOppList.get(indexError).Id + ' . Error message detail : ' + err.getStatusCode() + ': ' + err.getMessage() + '. Fields that affected this error: ' + err.getFields());        
 		        }
-		    }
+			}
+			indexError++;
 		}
     }
 
