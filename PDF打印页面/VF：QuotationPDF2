@@ -4,7 +4,7 @@
 
 <html>
 <head>
-<title>瑞斯康达科技发展股份有限公司报价单</title>
+<title>R公司报价单</title>
 <apex:stylesheet value="{!$Resource.PDFDocumentStyle}" />
 </head>
     <body style="font-family: 'Arial Unicode MS';font-size:10.0pt;">
@@ -14,12 +14,12 @@
             <apex:image style="width: 140px;height: 50px;" url="{!URLFOR($Resource.RaisecomLogo)}"></apex:image>
                 <!-- <apex:image url="{!$Resource.icon}" style="width: 140px;height: 50px;"></apex:image> -->
             </c:PDFHeaderFooter>
-            <c:PDFHeaderFooter type="header" position="right" >瑞斯康达</c:PDFHeaderFooter>
+            <c:PDFHeaderFooter type="header" position="right" >R Company</c:PDFHeaderFooter>
             <hr style="margin-top: 0px;" />
         </div>
         <div style="height: 30px"></div>
         <div style="margin-top: 0px;">
-            <span align="center" style="font-size: 20px;margin-top: 50px;margin-left: 180px;">瑞斯康达科技发展股份有限公司报价单</span>
+            <span align="center" style="font-size: 20px;margin-top: 50px;margin-left: 180px;">R公司报价单</span>
             <span style="font-size: 12px;margin-top: 20px;margin-left: 500px;">报价编号:{!qu.BJNumber__c}</span>
             <div style="height: 30px"></div>
         <table cellpadding="0" cellspacing="0" border="1">
@@ -93,7 +93,7 @@
 
         </div>
         <div style="float: right; margin-top: 10%;">
-            <span>瑞斯康达科技发展股份有限公司</span><br/>
+            <span>R公司</span><br/>
             报价日期：<span><apex:outputText value="{0,date,yyyy-MM-dd}">
                                     <apex:param value="{!qu.Date__c}" />
                             </apex:outputText>
