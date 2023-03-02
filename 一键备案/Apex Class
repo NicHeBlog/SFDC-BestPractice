@@ -17,8 +17,8 @@ public class AppendToFilingProductsCtrl {
     public ID accountId  {get;set;}                     //报价的最终客户id
     public List<FilingProducts__c> Fp_duplicatedCheck {get;set;} 
 
-    public Set<String> checkSet{get;set;}   //用来检查  备案客户id+瑞斯产品id+产品备案价格  是否唯一
-    public Map<String,FilingProducts__c> checkMap {get;set;}  //<备案客户id+瑞斯产品id,备案产品>
+    public Set<String> checkSet{get;set;}   //用来检查  备案客户id+产品id+产品备案价格  是否唯一
+    public Map<String,FilingProducts__c> checkMap {get;set;}  //<备案客户id+产品id,备案产品>
 
     //在页面初始化的时候就将这次报价的所有报价产品传递给页面
     public AppendToFilingProductsCtrl(){
@@ -40,8 +40,21 @@ public class AppendToFilingProductsCtrl {
         this.Fp_duplicatedCheck=[select BGAccount__c,Price__c,ProductName__c,number__c,AgreementProductActive__c from FilingProducts__c where AgreementProductActive__c=true and BGAccount__c = : accountId];
         
         for (FilingProducts__c fp : Fp_duplicatedCheck){
-            checkSet.add(String.valueOf(fp.BGAccount__c)+String.valueOf(fp.ProductName__c)+String.valueOf(fp.Price__c)); //<客户id+瑞斯产品id+备案价格>
-            checkMap.put(String.valueOf(fp.BGAccount__c)+String.valueOf(fp.ProductName__c),fp);     //<备案客户id+瑞斯产品id,备案产品>
+            checkSet.add(String.valueOf(fp.BGAccount__c)+String.valueOf(fp.ProductName__c)+String.valueOf(fp.Price__c)); //<客户id+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            产品id+备案价格>
+            checkMap.put(String.valueOf(fp.BGAccount__c)+String.valueOf(fp.ProductName__c),fp);     //<备案客户id+产品id,备案产品>
         }
         
        // system.debug('--->>>CheckMap:'+checkMap);
@@ -50,8 +63,8 @@ public class AppendToFilingProductsCtrl {
         //向数据库查询已有的报价产品信息
         this.oproductList=[
             Select
-            BGProductRaisecom_Name__c,  //瑞斯康达产品的id
-            BGProductRaisecom_Name__r.Name,  //瑞斯康达产品名称
+            BGProductRaisecom_Name__c,  //产品的id
+            BGProductRaisecom_Name__r.Name,  //产品名称
             BGProductRaisecom_Name__r.Material_Code__c,  //物料长代码
             BGProductRaisecom_Name__r.MaterialCode4__c,  //四级物料代码
             Price__c,        //销价单价
@@ -65,7 +78,7 @@ public class AppendToFilingProductsCtrl {
 
         //将qproductList中的产品ID放入map中,并封装类oiList
         for (BGQuoteProduct__c op : oproductList) {
-            //checkMap.put(op.BGProductRaisecom_Name__c, op.Id);   //<瑞斯康达产品id，报价产品id>
+            //checkMap.put(op.BGProductRaisecom_Name__c, op.Id);   //<产品id，报价产品id>
             oiList.add(new BGQuoteItem(false,false,op,quote));        //封装oiList 方便VF page调用
         }
      
@@ -94,7 +107,7 @@ public class AppendToFilingProductsCtrl {
                                     
 
                                         FilingProducts__c fp =new FilingProducts__c();
-                                        fp.ProductName__c=oi.qp.BGProductRaisecom_Name__c;     //瑞斯康达产品id------报价产品的瑞斯康达产品id
+                                        fp.ProductName__c=oi.qp.BGProductRaisecom_Name__c;     //产品id------报价产品的产品id
                                         fp.Price__c=oi.qp.Price__c;                            //备案价格------报价产品的销价单价
                                             if(oi.qp.CollectMining__c==null){          //如果没有填写销售策略，则默认的销售策略赋值为蓝色
                                                 fp.CollectMining__c='系统蓝';
@@ -102,7 +115,7 @@ public class AppendToFilingProductsCtrl {
                                                 fp.CollectMining__c=oi.qp.CollectMining__c;             //销售策略------销售策略
                                             }
                                         
-                                     	//fp.MaterialCode4__c=oi.qp.BGProductRaisecom_Name__r.MaterialCode4__c;  //4级物料代码------瑞斯康达产品的4级物料代码
+                                     	//fp.MaterialCode4__c=oi.qp.BGProductRaisecom_Name__r.MaterialCode4__c;  //4级物料代码------产品的4级物料代码
                                     	fp.BGAccount__c=oi.qte.AccountName__c; //客户------最终客户id
                                     	fp.Industry__c=oi.qte.Industry__c;    //行业------最终客户行业
                                      	// fp.Province__c=oi.qte.citys__c;       //省份------最终客户省份
@@ -121,7 +134,7 @@ public class AppendToFilingProductsCtrl {
                         ///***********  Start  四级物料代码的备案********************************************************************
                              if (oi.ifFourCheck){
                                         FilingProducts__c fp_four =new FilingProducts__c();
-                                        //fp_four.ProductName__c=oi.qp.BGProductRaisecom_Name__c;     //瑞斯康达产品id------报价产品的瑞斯康达产品id
+                                        //fp_four.ProductName__c=oi.qp.BGProductRaisecom_Name__c;     //产品id------报价产品的产品id
                                         fp_four.Price__c=oi.qp.Price__c;                            //备案价格------报价产品的销价单价
                                             if(oi.qp.CollectMining__c==null){          //如果没有填写销售策略，则默认的销售策略赋值为蓝色
                                                 fp_four.CollectMining__c='系统蓝';
@@ -129,7 +142,7 @@ public class AppendToFilingProductsCtrl {
                                                 fp_four.CollectMining__c=oi.qp.CollectMining__c;             //销售策略------销售策略
                                             }
                                         
-                                     	fp_four.MaterialCode4__c=oi.qp.BGProductRaisecom_Name__r.MaterialCode4__c;  //4级物料代码------瑞斯康达产品的4级物料代码
+                                     	fp_four.MaterialCode4__c=oi.qp.BGProductRaisecom_Name__r.MaterialCode4__c;  //4级物料代码------产品的4级物料代码
                                     	fp_four.BGAccount__c=oi.qte.AccountName__c; //客户------最终客户id
                                     	fp_four.Industry__c=oi.qte.Industry__c;    //行业------最终客户行业
                                      	// fp.Province__c=oi.qte.citys__c;       //省份------最终客户省份
