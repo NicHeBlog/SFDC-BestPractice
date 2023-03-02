@@ -11,7 +11,7 @@ global class RefreshOrderProductsPrice {
         //根据按钮传过来的销售订单ID，查询此销售订单下的订单产品。
         List<BGOrderProduct__c> bgopList = [
         									Select id,
-        										BGProductRaisecom_Name__c,   // 瑞斯康达产品
+        										BGProductRaisecom_Name__c,   // 产品
         										DirectorPrice__c,			 //总监价
         										ProductRaiseGuidePrice__c,	//主任价格  
         										AuthorizedDealerOrice__c,	//销售指导价
@@ -35,7 +35,7 @@ global class RefreshOrderProductsPrice {
 	    							from ProductRaisecom__c
 	    							where id in:idSet
 	    							 ];
-		    //将更新的瑞斯康达产品价格重新赋值给相对应的报价产品						 
+		    //将更新的产品价格重新赋值给相对应的报价产品						 
 		    for(BGOrderProduct__c bgp : bgopList){
 		    	for(ProductRaisecom__c pro : proList){
 		    		if(bgp.BGProductRaisecom_Name__c==pro.Id){
